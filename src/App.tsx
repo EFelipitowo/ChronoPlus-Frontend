@@ -4,6 +4,7 @@ import './pages/styles/style.css';
 import Login from './pages/Auth/LoginPage';
 import HomePaige from './pages/Main/HomePage';
 import Asset from './pages/Asset/Asset';
+import FormEvent from "./pages/Asset/FormEvent";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<HomePaige />} />
         <Route path="/asset" element={<Asset />} />
+        <Route path="/form" element={<FormEvent/>}/>
       </Routes>
     </Router>
   )
