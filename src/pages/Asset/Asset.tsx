@@ -59,7 +59,7 @@ const equipmentData: EquipmentData = {
 
 
 const Asset: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<number>(1);
+    const [activeTab, setActiveTab] = useState<number>(1);
     const [filteredData, setFilteredData] = useState<DataItem[]>([]);
     const [sortField, setSortField] = useState<string | number>('modificado_en');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');

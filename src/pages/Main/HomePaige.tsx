@@ -34,7 +34,7 @@ const HomePaige: React.FC = () => {
   useEffect(() => {
     const fakeData: DataItem[] = [
       { tag: 1, tag_marca: "Felipe", tag_estado: "100", empresa: "Ayala_Tx", nombre_subestacion: "Santiago", modificado_en: "2020-01-27 15:01:51.000 -0300" },
-      { tag: 11, tag_marca: "PMM", tag_estado: "200", empresa: "Ayala_Tx", nombre_subestacion: "Discord", modificado_en: "2020-01-27 15:01:59.000 -0300" },
+      { tag: 11, tag_marca: "PMM", tag_estado: "201", empresa: "Ayala_Tx", nombre_subestacion: "Discord", modificado_en: "2020-01-27 15:01:59.000 -0300" },
       { tag: 2, tag_marca: "Ana", tag_estado: "200", empresa: "Garay_Tx", nombre_subestacion: "Valparaíso", modificado_en: "2020-01-27 15:01:52.000 -0300" },
       { tag: 22, tag_marca: "USM", tag_estado: "500", empresa: "Garay_Tx", nombre_subestacion: "Casa Central", modificado_en: "2025-01-27 15:01:52.000 -0300" },
       { tag: 3, tag_marca: "Carlos", tag_estado: "300", empresa: "Garay_Tx", nombre_subestacion: "Concepción", modificado_en: "2020-01-27 15:01:53.000 -0300" },

@@ -28,23 +28,23 @@ const Table = <T extends DataItem>({
   sortField, 
   sortDirection 
 }: TableProps<T>): React.ReactElement => {
-  const handleSort = (field: keyof T) => {
-    if (!onSort) return;
-    
+    const handleSort = (field: keyof T) => {
+        if (!onSort) return;
     if (sortField === field) {
-      const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-      onSort(field, newDirection);
+        const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        onSort(field, newDirection);
     } else {
-      onSort(field, 'asc');
+        onSort(field, 'asc');
     }
-  };
+    };
 
-  const getSortIcon = (field: keyof T) => {
-    if (!sortField || sortField !== field) {
-      return " ";
-    }
+    const getSortIcon = (field: keyof T) => {
+        if (!sortField || sortField !== field) {
+            return " ";
+        }
     return sortDirection === 'asc' ? "↑" : "↓";
-  };
+    };
+
 
   // Función para renderizar el contenido de una celda
   const renderCellContent = (column: ColumnConfig<T>, item: T) => {
@@ -57,13 +57,13 @@ const Table = <T extends DataItem>({
       const value = item[column.key];
       return (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          value === "100"
+          String(value)[0] === "1"
             ? "bg-blue-100 text-blue-800"
-            : value === "200" 
+            : String(value)[0] === "2" 
             ? "bg-green-100 text-green-800"
-            : value === "300"
+            : String(value)[0] === "3"
             ? "bg-yellow-100 text-yellow-800" 
-            : value === "400"
+            : String(value)[0] === "4"
             ? "bg-red-100 text-red-800"
             : "bg-gray-100 text-gray-800"
         }`}>

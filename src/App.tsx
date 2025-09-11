@@ -5,7 +5,7 @@ import Asset from './pages/Asset/Asset';
 
 function App() {
 
-  return <Asset />;
+  return <HomePaige />;
 }
 
 export default App
