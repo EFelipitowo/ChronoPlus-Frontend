@@ -244,10 +244,10 @@ const Asset: React.FC = () => {
                 </div>
 
             </div>
-            <div className="flex items-center mb-8 mt-4">
+            <div className="flex items-center mb-8 mt-6">
                 <div className="flex-grow border-t border-gray-600"></div>
-                <div className="bg-white px-4 rounded-2xl border-gray-600">
-                    <span className="text-lg font-semibold text-gray-700">Regristros Historicos</span>
+                <div className="bg-white px-4 rounded-2xl border-gray-800">
+                    <span className="text-lg font-semibold text-black">Registros Historicos</span>
                 </div>
                 <div className="flex-grow border-t border-gray-600"></div>
             </div>
