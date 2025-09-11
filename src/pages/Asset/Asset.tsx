@@ -99,7 +99,7 @@ const Asset: React.FC = () => {
         <div className="top-0 left-0 justify-center shadow-md z-50 ">
             <TopBar_l></TopBar_l>
         </div>
-        <div className="max-w-4xl mt-16 mx-auto p-6 bg-white rounded-lg shadow-md border-1 border-black">
+        <div className="max-w-4xl mt-20 mx-auto p-6 bg-white rounded-lg shadow-md border-1 border-black">
             
             {/* Encabezado con TAG */}
             <div className="border-b border-gray-200 pb-4 mb-6">
@@ -107,7 +107,7 @@ const Asset: React.FC = () => {
                 <p className="text-gray-600 mt-1">{equipmentData.familia}</p>
             </div>
 
-            {/* Pestañas */}
+        {/* Pestañas */}
         <div className="mb-6">
             <div className="flex border-b border-gray-200">
                 <button
@@ -247,7 +247,7 @@ const Asset: React.FC = () => {
     <div className="flex items-center mb-8 mt-4">
             <div className="flex-grow border-t border-gray-600"></div>
             <div className="bg-white px-4 rounded-2xl border-gray-600">
-                <span className="text-lg font-semibold text-gray-700">Búsqueda Avanzada</span>
+                <span className="text-lg font-semibold text-gray-700">Regristros Historicos</span>
             </div>
         <div className="flex-grow border-t border-gray-600"></div>
     </div>
