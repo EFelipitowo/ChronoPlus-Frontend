@@ -1,7 +1,34 @@
-import React from "react";
+import React, {useState} from "react";
+import { login } from "../../services/authService";
 import TopBar from "../../components/layout/TopBar";
+import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const data = await login(email, password);
+      console.log("Login success:", data);
+      localStorage.setItem("token", data.token);
+      navigate("/home");
+    } catch {
+      setError("Correo o contraseña inválidos");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
   return (
     <div className="flex items-center justify-center w-full min-h-screen relative">
       <TopBar />
@@ -10,7 +37,7 @@ const Login: React.FC = () => {
 
         <div className="mb-6 border-t border-gray-300"></div>
 
-        <form className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium mb-2 text-gray-700">
               Correo
@@ -19,6 +46,8 @@ const Login: React.FC = () => {
               type="email"
               id="email"
               placeholder="Ingresa tu correo"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
             />
           </div>
@@ -31,15 +60,20 @@ const Login: React.FC = () => {
               type="password"
               id="password"
               placeholder="Ingresa tu contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C] color"
             />
           </div>
 
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-3 bg-[#8B322C] text-white rounded-lg hover:bg-[#6B2925] transition font-semibold text-lg"
           >
-            Iniciar sesión
+            {loading ?  "Cargando..." : "Iniciar sesión"}
           </button>
         </form>
       </div>
