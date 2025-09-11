@@ -46,7 +46,7 @@ const HomePaige: React.FC = () => {
   }, []);
 
   // Función para manejar el ordenamiento
-   const handleSort = (field: string | number, direction: 'asc' | 'desc') => {
+  const handleSort = (field: string | number, direction: 'asc' | 'desc') => {
     setSortField(field);
     setSortDirection(direction);
     
@@ -279,13 +279,13 @@ const HomePaige: React.FC = () => {
         </div>
 
         {/* Tabla de resultados usando el componente Table */}
-         <Table
+        <Table
           data={filteredData}
           columns={tableColumns}
           onSort={handleSort}
           sortField={sortField}
           sortDirection={sortDirection}
-      />
+        />
       </div>
     </div> 
   );
