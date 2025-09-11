@@ -31,3 +31,19 @@
   
 }
 
+.tab-button {
+  background-color: rgb(207, 207, 207) !important;
+  color: #374151 !important; /* gray-700 */
+  border: none !important;
+  cursor: pointer;
+}
+
+.tab-button.active {
+  color: black !important;
+  background-color: white !important;
+  font-weight: 600 !important;
+}
+
+.tab-button:hover {
+  color: black !important;
+}
