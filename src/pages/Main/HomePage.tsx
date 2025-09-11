@@ -4,7 +4,7 @@ import TopBar_l from "../../components/layout/TopBar_logged";
 import Table from "../../components/ui/Table"; // Importa el componente Table
 import type { DataItem, ColumnConfig } from "../../components/ui/Table";
 
-const HomePaige: React.FC = () => {
+const HomePage: React.FC = () => {
   const [query, setQuery] = useState("");
   const [searchBy, setSearchBy] = useState("tag");
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -291,4 +291,4 @@ const HomePaige: React.FC = () => {
   );
 };
 
-export default HomePaige;
+export default HomePage;

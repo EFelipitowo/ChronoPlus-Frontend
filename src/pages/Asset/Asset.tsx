@@ -6,55 +6,55 @@ import type { DataItem, ColumnConfig } from "../../components/ui/Table";
 
 // Definimos los tipos TypeScript para nuestros datos
 interface EquipmentData {
-  tag: string;
-  codigoCEN: string;
-  codigoSAP: string;
-  codigoNEMA: string;
-  estado: string;
-  marca: string;
-  modelo: string;
-  serie: string;
-  anoAntiguedad: number;
-  familia: string;
-  empresa: string;
-  subestacion: string;
-  coordenadas?: string;
-  observaciones: string;
-  tensionCod: string;
-  frecuencia?: string;
-  peso?: string;
-  corriente: string;
-  anoFabricacion: number;
-  bil: string;
-  tipo: string;
-  datosExtra?: Record<string, string>;
+    tag: string;
+    codigoCEN: string;
+    codigoSAP: string;
+    codigoNEMA: string;
+    estado: string;
+    marca: string;
+    modelo: string;
+    serie: string;
+    anoAntiguedad: number;
+    familia: string;
+    empresa: string;
+    subestacion: string;
+    coordenadas?: string;
+    observaciones: string;
+    tensionCod: string;
+    frecuencia?: string;
+    peso?: string;
+    corriente: string;
+    anoFabricacion: number;
+    bil: string;
+    tipo: string;
+    datosExtra?: Record<string, string>;
 }
 
 // Datos de ejemplo basados en la imagen
 const equipmentData: EquipmentData = {
-  tag: "52A3150A0001",
-  codigoCEN: "N/A",
-  codigoSAP: "10017M0",
-  codigoNEMA: "SDAI",
-  estado: "En Servicio, Normal (202)",
-  marca: "ALSTOM",
-  modelo: "TYPE.GL.313 F1/4031",
-  serie: "9523-10-2040394/1",
-  anoAntiguedad: 12, // 2024 - 2012
-  familia: "INT ALSTOM TIPO GL 313 F1/4031 P",
-  empresa: "Chilquinta",
-  subestacion: "San Antonio",
-  observaciones: "Normal",
-  tensionCod: "170 Kv",
-  corriente: "3150 A",
-  anoFabricacion: 2012,
-  bil: "750 KV",
-  tipo: "Interruptor",
-  datosExtra: {
-    "Tensión soportada al rayo": "750 KV",
-    "Frecuencia": "50Hz",
-    "Corriente corto circuito": "40KA"
-  }
+    tag: "52A3150A0001",
+    codigoCEN: "N/A",
+    codigoSAP: "10017M0",
+    codigoNEMA: "SDAI",
+    estado: "En Servicio, Normal (202)",
+    marca: "ALSTOM",
+    modelo: "TYPE.GL.313 F1/4031",
+    serie: "9523-10-2040394/1",
+    anoAntiguedad: 12, // 2024 - 2012
+    familia: "INT ALSTOM TIPO GL 313 F1/4031 P",
+    empresa: "Chilquinta",
+    subestacion: "San Antonio",
+    observaciones: "Normal",
+    tensionCod: "170 Kv",
+    corriente: "3150 A",
+    anoFabricacion: 2012,
+    bil: "750 KV",
+    tipo: "Interruptor",
+    datosExtra: {
+        "Tensión soportada al rayo": "750 KV",
+        "Frecuencia": "50Hz",
+        "Corriente corto circuito": "40KA"
+    }
 };
 
 
