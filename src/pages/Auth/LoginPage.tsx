@@ -7,9 +7,9 @@ const Login: React.FC = () => {
       <TopBar />
       <div className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-sm">
         <h1 className="text-3xl font-bold text-center mb-2 text-[#000000]">Bienvenido</h1>
-        
+
         <div className="mb-6 border-t border-gray-300"></div>
-        
+
         <form className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium mb-2 text-gray-700">

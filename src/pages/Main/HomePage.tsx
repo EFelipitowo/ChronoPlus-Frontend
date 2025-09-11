@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../styles/style.css"
-import TopBar_l from "../../components/layout/TopBar_logged"; 
+import TopBar_l from "../../components/layout/TopBar_logged";
 import Table from "../../components/ui/Table"; // Importa el componente Table
 import type { DataItem, ColumnConfig } from "../../components/ui/Table";
 
@@ -10,7 +10,7 @@ const HomePage: React.FC = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [data, setData] = useState<DataItem[]>([]);
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
-  
+
   // Estados para ordenamiento
   const [sortField, setSortField] = useState<string | number>('modificado_en');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -49,7 +49,7 @@ const HomePage: React.FC = () => {
   const handleSort = (field: string | number, direction: 'asc' | 'desc') => {
     setSortField(field);
     setSortDirection(direction);
-    
+
     const sortedData = [...filteredData].sort((a, b) => {
       if (a[field] < b[field]) {
         return direction === 'asc' ? -1 : 1;
@@ -59,13 +59,13 @@ const HomePage: React.FC = () => {
       }
       return 0;
     });
-    
+
     setFilteredData(sortedData);
   };
 
   // Filtrado de datos según búsqueda
   const handleSearch = () => {
-    if (!query && !filtroEstado && !filtroSubestacion && !filtroFechaDesde && !filtroFechaHasta){
+    if (!query && !filtroEstado && !filtroSubestacion && !filtroFechaDesde && !filtroFechaHasta) {
       setFilteredData(data);
       return;
     }
@@ -73,7 +73,7 @@ const HomePage: React.FC = () => {
     const results = data.filter((item) => {
       const searchValue = query.toLowerCase();
       let matchesBasic = false;
-      
+
       switch (searchBy) {
         case "tag":
           matchesBasic = item.tag.toString().includes(searchValue);
@@ -90,14 +90,14 @@ const HomePage: React.FC = () => {
         default:
           matchesBasic = true;
       }
-      
+
       const matchesEstado = !filtroEstado || item.tag_estado === filtroEstado;
       const matchesSubestacion = !filtroSubestacion || String(item.nombre_subestacion).toLowerCase().includes(filtroSubestacion.toLowerCase());
       const matchesFecha = true;
-      
+
       return matchesBasic && matchesEstado && matchesSubestacion && matchesFecha;
     });
-    
+
     setFilteredData(results);
   };
 
@@ -146,7 +146,7 @@ const HomePage: React.FC = () => {
                 <option value="subestacion">Subestación</option>
               </select>
             </div>
-            
+
             <div className="md:col-span-2">
               <label className="block text-sm font-semibold mb-2 text-gray-700">
                 Ingrese dato:
@@ -169,7 +169,7 @@ const HomePage: React.FC = () => {
               </div>
             </div>
           </div>
-        
+
           {/* Botón para mostrar/ocultar búsqueda avanzada */}
           <div className="mt-4 flex justify-center">
             <button
@@ -177,11 +177,11 @@ const HomePage: React.FC = () => {
               className="flex items-center text-sm text-white hover:text-red-800 transition"
             >
               {showAdvanced ? "Ocultar opciones avanzadas" : "Mostrar opciones avanzadas"}
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className={`h-4 w-4 ml-1 transition-transform ${showAdvanced ? "rotate-180" : ""}`} 
-                fill="none" 
-                viewBox="0 0 24 24" 
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={`h-4 w-4 ml-1 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -193,7 +193,7 @@ const HomePage: React.FC = () => {
           <div className={`overflow-hidden transition-all duration-500 ease-in-out ${showAdvanced ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
             <div className="mt-6 pt-6 border-t border-gray-400">
               <h3 className="text-lg font-semibold mb-4 text-gray-700">Opciones de Búsqueda Avanzada</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-4 pr-4 ">
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">
@@ -212,7 +212,7 @@ const HomePage: React.FC = () => {
                     <option value="500">Estado 500</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">
                     Filtrar por Subestación:
@@ -225,7 +225,7 @@ const HomePage: React.FC = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">
                     Fecha desde:
@@ -237,7 +237,7 @@ const HomePage: React.FC = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">
                     Fecha hasta:
@@ -250,7 +250,7 @@ const HomePage: React.FC = () => {
                   />
                 </div>
               </div>
-              
+
               <div className="mt-6 flex justify-end space-x-3">
                 <button
                   onClick={handleClearFilters}
@@ -287,7 +287,7 @@ const HomePage: React.FC = () => {
           sortDirection={sortDirection}
         />
       </div>
-    </div> 
+    </div>
   );
 };
 

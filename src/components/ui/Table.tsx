@@ -3,7 +3,7 @@ import '../../pages/styles/style.css'
 
 // Interface genérica para los datos
 export interface DataItem {
-  [key: string]: string | number | boolean | Date ;
+  [key: string]: string | number | boolean | Date;
 }
 
 export interface ColumnConfig<T = DataItem> {
@@ -21,29 +21,29 @@ interface TableProps<T = DataItem> {
   sortDirection?: 'asc' | 'desc';
 }
 
-const Table = <T extends DataItem>({ 
-  data, 
+const Table = <T extends DataItem>({
+  data,
   columns,
-  onSort, 
-  sortField, 
-  sortDirection 
+  onSort,
+  sortField,
+  sortDirection
 }: TableProps<T>): React.ReactElement => {
-    const handleSort = (field: keyof T) => {
-        if (!onSort) return;
+  const handleSort = (field: keyof T) => {
+    if (!onSort) return;
     if (sortField === field) {
-        const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-        onSort(field, newDirection);
+      const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      onSort(field, newDirection);
     } else {
-        onSort(field, 'asc');
+      onSort(field, 'asc');
     }
-    };
+  };
 
-    const getSortIcon = (field: keyof T) => {
-        if (!sortField || sortField !== field) {
-            return " ";
-        }
+  const getSortIcon = (field: keyof T) => {
+    if (!sortField || sortField !== field) {
+      return " ";
+    }
     return sortDirection === 'asc' ? "↑" : "↓";
-    };
+  };
 
 
   // Función para renderizar el contenido de una celda
@@ -51,27 +51,26 @@ const Table = <T extends DataItem>({
     if (column.customRender) {
       return column.customRender(item[column.key], item);
     }
-    
+
     // Renderizado especial para la columna de estado
     if (column.key === 'tag_estado') {
       const value = item[column.key];
       return (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          String(value)[0] === "1"
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${String(value)[0] === "1"
             ? "bg-blue-100 text-blue-800"
-            : String(value)[0] === "2" 
-            ? "bg-green-100 text-green-800"
-            : String(value)[0] === "3"
-            ? "bg-yellow-100 text-yellow-800" 
-            : String(value)[0] === "4"
-            ? "bg-red-100 text-red-800"
-            : "bg-gray-100 text-gray-800"
-        }`}>
+            : String(value)[0] === "2"
+              ? "bg-green-100 text-green-800"
+              : String(value)[0] === "3"
+                ? "bg-yellow-100 text-yellow-800"
+                : String(value)[0] === "4"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-gray-100 text-gray-800"
+          }`}>
           {String(value)}
         </span>
       );
     }
-    
+
     return String(item[column.key]);
   };
 
@@ -82,13 +81,13 @@ const Table = <T extends DataItem>({
           <thead className="bg-gray-200">
             <tr>
               {columns.map((column) => (
-                <th 
+                <th
                   key={String(column.key)}
                   className="p-4 text-left font-semibold text-gray-700 cursor-pointer hover:bg-gray-300"
                   onClick={() => column.sortable !== false && handleSort(column.key)}
                 >
                   <div className="flex items-center">
-                    {column.label} 
+                    {column.label}
                     {column.sortable !== false && onSort && getSortIcon(column.key)}
                   </div>
                 </th>

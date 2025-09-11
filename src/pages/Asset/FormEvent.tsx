@@ -30,7 +30,7 @@ interface Encargado {
 
 // Definir los estados menores por cada estado mayor
 const estadosMenoresPorMayor: Record<string, Array<{ value: string, label: string }>> = {
-    
+
     "100": [ // En Proyecto
         { value: "102", label: "102 - En Cotización" },
         { value: "103", label: "103 - En Diseño" },
@@ -351,31 +351,31 @@ const FormAsset: React.FC = () => {
                             {/* Estado Menor (dinámico) */}
                             {/* Estado Menor (dinámico) */}
                             <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Estado Menor
-                            </label>
-                            <select
-                                name="estadoMenor"
-                                value={formData.estadoMenor}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
-                                required
-                            >
-                                {!formData.estadoMayor ? (
-                                // Si NO hay Estado Mayor seleccionado
-                                <option value="" disabled className="italic">
-                                    Seleccione un Estado Mayor primero
-                                </option>
-                                ) : (
-                                <>
-                                    {estadosMenores.map((estado) => (
-                                    <option key={estado.value} value={estado.value}>
-                                        {estado.label}
-                                    </option>
-                                    ))}
-                                </>
-                                )}
-                            </select>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Estado Menor
+                                </label>
+                                <select
+                                    name="estadoMenor"
+                                    value={formData.estadoMenor}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                                    required
+                                >
+                                    {!formData.estadoMayor ? (
+                                        // Si NO hay Estado Mayor seleccionado
+                                        <option value="" disabled className="italic">
+                                            Seleccione un Estado Mayor primero
+                                        </option>
+                                    ) : (
+                                        <>
+                                            {estadosMenores.map((estado) => (
+                                                <option key={estado.value} value={estado.value}>
+                                                    {estado.label}
+                                                </option>
+                                            ))}
+                                        </>
+                                    )}
+                                </select>
                             </div>
 
 

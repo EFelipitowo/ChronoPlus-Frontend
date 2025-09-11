@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "../../assets/chilquinta.png"; // Asegúrate de poner tu imagen en la carpeta assets
+import logo from "../../assets/chilquinta.png";
 import "../../pages/styles/style.css"
 
 const TopBar: React.FC = () => {

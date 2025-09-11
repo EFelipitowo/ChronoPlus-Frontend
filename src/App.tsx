@@ -8,12 +8,12 @@ import FormEvent from "./pages/Asset/FormEvent";
 
 function App() {
   return (
-     <Router>
+    <Router>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/asset" element={<Asset />} />
-        <Route path="/form" element={<FormEvent/>}/>
+        <Route path="/form" element={<FormEvent />} />
       </Routes>
     </Router>
   )
