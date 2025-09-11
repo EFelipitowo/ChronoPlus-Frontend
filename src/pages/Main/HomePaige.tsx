@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from "react";
 import "../styles/style.css"
 import TopBar_l from "../../components/layout/TopBar_logged"; 
-
-
-interface DataItem {
-  tag: number;
-  tag_marca: string;
-  tag_estado: string;
-  empresa: string;
-  nombre_subestacion: string;
-  modificado_en: string;
-}
-
+import Table from "../../components/ui/Table"; // Importa el componente Table
+import type { DataItem, ColumnConfig } from "../../components/ui/Table";
 
 const HomePaige: React.FC = () => {
   const [query, setQuery] = useState("");
-  const [searchBy, setSearchBy] = useState("tag"); // Estado para el criterio de búsqueda
+  const [searchBy, setSearchBy] = useState("tag");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [data, setData] = useState<DataItem[]>([]);
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
-
+  
+  // Estados para ordenamiento
+  const [sortField, setSortField] = useState<string | number>('modificado_en');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   // Estados para filtros avanzados
   const [filtroEstado, setFiltroEstado] = useState("");
@@ -27,29 +21,56 @@ const HomePaige: React.FC = () => {
   const [filtroFechaDesde, setFiltroFechaDesde] = useState("");
   const [filtroFechaHasta, setFiltroFechaHasta] = useState("");
 
-  // Simulación de datos (aquí irían los datos de la base de datos)
+  const tableColumns: ColumnConfig[] = [
+    { key: 'tag', label: 'TAG', sortable: true },
+    { key: 'tag_marca', label: 'Marca', sortable: true },
+    { key: 'tag_estado', label: 'Estado', sortable: true },
+    { key: 'empresa', label: 'Empresa', sortable: true },
+    { key: 'nombre_subestacion', label: 'Subestación', sortable: true },
+    { key: 'modificado_en', label: 'Ultima Actualización', sortable: true }
+  ];
+
+  // Simulación de datos
   useEffect(() => {
     const fakeData: DataItem[] = [
-      { tag: 1, tag_marca: "Felipe", tag_estado: "100", empresa: "Felipe_Tx", nombre_subestacion: "Santiago", modificado_en: "2020-01-27 15:01:51.000 -0300" },
-      { tag: 2, tag_marca: "Ana", tag_estado: "200", empresa: "Felipe_Tx", nombre_subestacion: "Valparaíso", modificado_en: "2020-01-27 15:01:52.000 -0300" },
-      { tag: 3, tag_marca: "Carlos", tag_estado: "300", empresa: "Felipe_Tx", nombre_subestacion: "Concepción", modificado_en: "2020-01-27 15:01:53.000 -0300" },
-      { tag: 4, tag_marca: "María", tag_estado: "400", empresa: "Felipe_Tx", nombre_subestacion: "La Serena", modificado_en: "2020-01-27 15:01:54.000 -0300" },
-      { tag: 5, tag_marca: "Luis", tag_estado: "500", empresa: "Felipe_Tx", nombre_subestacion: "Antofagasta", modificado_en: "2020-01-27 15:01:55.000 -0300" },
+      { tag: 1, tag_marca: "Felipe", tag_estado: "100", empresa: "Ayala_Tx", nombre_subestacion: "Santiago", modificado_en: "2020-01-27 15:01:51.000 -0300" },
+      { tag: 11, tag_marca: "PMM", tag_estado: "200", empresa: "Ayala_Tx", nombre_subestacion: "Discord", modificado_en: "2020-01-27 15:01:59.000 -0300" },
+      { tag: 2, tag_marca: "Ana", tag_estado: "200", empresa: "Garay_Tx", nombre_subestacion: "Valparaíso", modificado_en: "2020-01-27 15:01:52.000 -0300" },
+      { tag: 22, tag_marca: "USM", tag_estado: "500", empresa: "Garay_Tx", nombre_subestacion: "Casa Central", modificado_en: "2025-01-27 15:01:52.000 -0300" },
+      { tag: 3, tag_marca: "Carlos", tag_estado: "300", empresa: "Garay_Tx", nombre_subestacion: "Concepción", modificado_en: "2020-01-27 15:01:53.000 -0300" },
+      { tag: 4, tag_marca: "María", tag_estado: "400", empresa: "Ayala_Tx", nombre_subestacion: "La Serena", modificado_en: "2020-01-27 15:01:54.000 -0300" },
+      { tag: 5, tag_marca: "Luis", tag_estado: "500", empresa: "Ayala_Tx", nombre_subestacion: "Antofagasta", modificado_en: "2020-01-27 15:01:55.000 -0300" },
     ];
     setData(fakeData);
     setFilteredData(fakeData);
   }, []);
 
+  // Función para manejar el ordenamiento
+   const handleSort = (field: string | number, direction: 'asc' | 'desc') => {
+    setSortField(field);
+    setSortDirection(direction);
+    
+    const sortedData = [...filteredData].sort((a, b) => {
+      if (a[field] < b[field]) {
+        return direction === 'asc' ? -1 : 1;
+      }
+      if (a[field] > b[field]) {
+        return direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+    
+    setFilteredData(sortedData);
+  };
+
   // Filtrado de datos según búsqueda
   const handleSearch = () => {
-
     if (!query && !filtroEstado && !filtroSubestacion && !filtroFechaDesde && !filtroFechaHasta){
       setFilteredData(data);
       return;
     }
 
     const results = data.filter((item) => {
-      // Filtro básico
       const searchValue = query.toLowerCase();
       let matchesBasic = false;
       
@@ -58,24 +79,21 @@ const HomePaige: React.FC = () => {
           matchesBasic = item.tag.toString().includes(searchValue);
           break;
         case "marca":
-          matchesBasic = item.tag_marca.toLowerCase().includes(searchValue);
+          matchesBasic = String(item.tag_marca).toLowerCase().includes(searchValue);
           break;
         case "estado":
-          matchesBasic = item.tag_estado.toLowerCase().includes(searchValue);
+          matchesBasic = String(item.tag_estado).toLowerCase().includes(searchValue);
           break;
         case "subestacion":
-          matchesBasic = item.nombre_subestacion.toLowerCase().includes(searchValue);
+          matchesBasic = String(item.nombre_subestacion).toLowerCase().includes(searchValue);
           break;
         default:
           matchesBasic = true;
       }
       
-      // Filtros avanzados
       const matchesEstado = !filtroEstado || item.tag_estado === filtroEstado;
-      const matchesSubestacion = !filtroSubestacion || item.nombre_subestacion.toLowerCase().includes(filtroSubestacion.toLowerCase());
-      
-      // Filtro por fecha (simplificado)
-      const matchesFecha = true; // Aquí implementarías la lógica de filtrado por fecha
+      const matchesSubestacion = !filtroSubestacion || String(item.nombre_subestacion).toLowerCase().includes(filtroSubestacion.toLowerCase());
+      const matchesFecha = true;
       
       return matchesBasic && matchesEstado && matchesSubestacion && matchesFecha;
     });
@@ -91,6 +109,8 @@ const HomePaige: React.FC = () => {
     setFiltroFechaDesde("");
     setFiltroFechaHasta("");
     setFilteredData(data);
+    setSortField('tag');
+    setSortDirection('asc');
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -99,16 +119,15 @@ const HomePaige: React.FC = () => {
     }
   };
 
-
   return (
-    <div className="min-h-screen">
-      <div className="fixed items-center top-0 justify-center w-full min-h-screen">
+    <div className="">
+      <div className="top-0 left-0 justify-center shadow-md z-50 ">
         <TopBar_l />
       </div>
 
-      <div className="relative container mx-auto px-4 py-10 mt-16">
+      <div className="relative container mx-auto px-4 py-10 mt-16 ">
         {/* Panel de búsqueda */}
-        <div className="bg-gray-100 rounded-2xl shadow-lg p-6 mb-8">
+        <div className="bg-gray-100 rounded-2xl  p-6 mb-8 border-black border-1">
           {/* Título */}
           <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Buscar activo</h1>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -155,7 +174,7 @@ const HomePaige: React.FC = () => {
           <div className="mt-4 flex justify-center">
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center text-sm text-white hover:text-[#6B2925] transition"
+              className="flex items-center text-sm text-white hover:text-red-800 transition"
             >
               {showAdvanced ? "Ocultar opciones avanzadas" : "Mostrar opciones avanzadas"}
               <svg 
@@ -251,67 +270,24 @@ const HomePaige: React.FC = () => {
         </div>
 
         {/* Separador */}
-        <div className="flex items-center mb-8">
-          <div className="flex-grow border-t border-gray-300"></div>
-          <div className="bg-white px-4">
+        <div className="flex items-center mb-8 ">
+          <div className="flex-grow border-t border-gray-600"></div>
+          <div className="bg-white px-4 rounded-2xl border-gray-600">
             <span className="text-lg font-semibold text-gray-700">Búsqueda Avanzada</span>
           </div>
-          <div className="flex-grow border-t border-gray-300"></div>
+          <div className="flex-grow border-t border-gray-600"></div>
         </div>
 
-        {/* Tabla de resultados */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="p-4 text-left font-semibold text-gray-700">TAG</th>
-                  <th className="p-4 text-left font-semibold text-gray-700">Marca</th>
-                  <th className="p-4 text-left font-semibold text-gray-700">Estado</th>
-                  <th className="p-4 text-left font-semibold text-gray-700">Empresa</th>
-                  <th className="p-4 text-left font-semibold text-gray-700">Subestación</th>
-                  <th className="p-4 text-left font-semibold text-gray-700">Ultima Actualización</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.length > 0 ? (
-                  filteredData.map((item, index) => (
-                    <tr key={item.tag} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                      <td className="p-4 border-b border-gray-200">{item.tag}</td>
-                      <td className="p-4 border-b border-gray-200">{item.tag_marca}</td>
-                      <td className="p-4 border-b border-gray-200">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          item.tag_estado === "100"
-                            ? "bg-blue-100 text-blue-800"
-                            : item.tag_estado === "200" 
-                            ? "bg-green-100 text-green-800"
-                            : item.tag_estado === "300"
-                            ? "bg-yellow-100 text-yellow-800" 
-                            : item.tag_estado === "400"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}>
-                          {item.tag_estado}
-                        </span>
-                      </td>
-                      <td className="p-4 border-b border-gray-200">{item.empresa}</td>
-                      <td className="p-4 border-b border-gray-200">{item.nombre_subestacion}</td>
-                      <td className="p-4 border-b border-gray-200">{item.modificado_en}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="p-8 text-center text-gray-500">
-                      No se encontraron resultados para su búsqueda.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        {/* Tabla de resultados usando el componente Table */}
+         <Table
+          data={filteredData}
+          columns={tableColumns}
+          onSort={handleSort}
+          sortField={sortField}
+          sortDirection={sortDirection}
+      />
       </div>
-    </div>
+    </div> 
   );
 };
 
