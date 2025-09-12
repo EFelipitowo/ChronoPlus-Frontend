@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import TopBar_l from "../../components/layout/TopBar_logged";
+import { getAssetData } from "../../services/assetService";
 
 interface AssetData {
     id: string;
@@ -76,7 +77,7 @@ const estadosMenoresPorMayor: Record<string, Array<{ value: string, label: strin
 };
 
 const FormAsset: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+    const { id } = useParams< string >();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [loadingData, setLoadingData] = useState(true);
@@ -108,6 +109,11 @@ const FormAsset: React.FC = () => {
         try {
             setLoadingData(true);
 
+            // Obtener encargados
+            const encargadosResponse = await fetch('/api/encargados');
+            const encargadosData = await encargadosResponse.json();
+            setEncargados(encargadosData);
+
             // Obtener empresas
             const empresasResponse = await fetch('/api/empresas');
             const empresasData = await empresasResponse.json();
@@ -118,10 +124,7 @@ const FormAsset: React.FC = () => {
             const subestacionesData = await subestacionesResponse.json();
             setSubestaciones(subestacionesData);
 
-            // Obtener encargados
-            const encargadosResponse = await fetch('/api/encargados');
-            const encargadosData = await encargadosResponse.json();
-            setEncargados(encargadosData);
+
 
         } catch (error) {
             console.error("Error fetching data from API:", error);
@@ -179,26 +182,28 @@ const FormAsset: React.FC = () => {
                 // Primero obtener los datos de referencia
                 await fetchDataFromAPI();
 
-                // Simulación de datos del activo - reemplazar con llamada API real
-                const mockData: AssetData = {
-                    id: id || "1",
-                    tag: id || "52A3150A0001",
-                    estadoMayor: "300",
-                    estadoMenor: "301",
-                    empresa: "1",
-                    subestacion: "49 Verbas Buenas",
-                    encargado: "Juan Pérez", // Ahora usamos el nombre directamente
-                    observaciones: "- Fallo Parte N123\n- Se requiere componentes... para reparar"
-                };
 
-                setAssetData(mockData);
+                const {items, metadata} = await getAsset(id);
+                // Simulación de datos del activo - reemplazar con llamada API real
+                //const mockData: AssetData = {
+                //    id: id || "1",
+                //    tag: id || "52A3150A0001",
+                //    estadoMayor: "300",
+                //    estadoMenor: "301",
+                //    empresa: "1",
+                //    subestacion: "49 Verbas Buenas",
+                //    encargado: "Juan Pérez", // Ahora usamos el nombre directamente
+                //    observaciones: "- Fallo Parte N123\n- Se requiere componentes... para reparar"
+                //};
+
+                setAssetData(items);
                 setFormData({
-                    estadoMayor: mockData.estadoMayor,
-                    estadoMenor: mockData.estadoMenor,
-                    empresa: mockData.empresa,
-                    subestacion: mockData.subestacion,
-                    encargado: mockData.encargado,
-                    observaciones: mockData.observaciones
+                    estadoMayor: items.estado_mayor,
+                    estadoMenor: items.estador_menor,
+                    empresa: items.empresa,
+                    subestacion: items.subestacion,
+                    encargado: items.encargado,
+                    observaciones: items.observacion
                 });
 
                 // Buscar el ID del encargado por su nombre
@@ -315,7 +320,7 @@ const FormAsset: React.FC = () => {
                             Actualizar Activo
                         </h1>
                         <p className="text-center text-gray-600">
-                            Modifique la información del activo eléctrico
+                            Registre un del activo eléctrico
                         </p>
                         <div className="text-center mt-4">
                             <span className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">

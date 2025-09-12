@@ -12,8 +12,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<HomePage />} />
-        <Route path="/asset" element={<Asset />} />
-        <Route path="/form" element={<FormEvent />} />
+        <Route path="/asset/:id" element={<Asset />} />
+        <Route path="/asset/:id/register-event" element={<FormEvent />} />
       </Routes>
     </Router>
   )

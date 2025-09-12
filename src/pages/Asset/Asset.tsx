@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import "../../pages/styles/style.css"
 import TopBar_l from '../../components/layout/TopBar_logged';
 import Table from '../../components/ui/Table';
 import type { DataItem, ColumnConfig } from "../../components/ui/Table";
+import { getAssetData, getAssetEvents } from '../../services/assetService';
+import type { ApiSingleResponse, Asset, AssetEvent } from '../../services/assetService';
 
 // Definimos los tipos TypeScript para nuestros datos
 interface EquipmentData {
@@ -27,52 +30,117 @@ interface EquipmentData {
     anoFabricacion: number;
     bil: string;
     tipo: string;
-    datosExtra?: Record<string, string>;
 }
 
 // Datos de ejemplo basados en la imagen
-const equipmentData: EquipmentData = {
-    tag: "52A3150A0001",
-    codigoCEN: "N/A",
-    codigoSAP: "10017M0",
-    codigoNEMA: "SDAI",
-    estado: "En Servicio, Normal (202)",
-    marca: "ALSTOM",
-    modelo: "TYPE.GL.313 F1/4031",
-    serie: "9523-10-2040394/1",
-    anoAntiguedad: 12, // 2024 - 2012
-    familia: "INT ALSTOM TIPO GL 313 F1/4031 P",
-    empresa: "Chilquinta",
-    subestacion: "San Antonio",
-    observaciones: "Normal",
-    tensionCod: "170 Kv",
-    corriente: "3150 A",
-    anoFabricacion: 2012,
-    bil: "750 KV",
-    tipo: "Interruptor",
-    datosExtra: {
-        "Tensión soportada al rayo": "750 KV",
-        "Frecuencia": "50Hz",
-        "Corriente corto circuito": "40KA"
-    }
-};
+//const equipmentData: EquipmentData = {
+//    tag: "52A3150A0001",
+//    codigoCEN: "N/A",
+//    codigoSAP: "10017M0",
+//    codigoNEMA: "SDAI",
+//    estado: "En Servicio, Normal (202)",
+//    marca: "ALSTOM",
+//    modelo: "TYPE.GL.313 F1/4031",
+//    serie: "9523-10-2040394/1",
+//    anoAntiguedad: 12, // 2024 - 2012
+//    familia: "INT ALSTOM TIPO GL 313 F1/4031 P",
+//    empresa: "Chilquinta",
+//    subestacion: "San Antonio",
+//    observaciones: "Normal",
+//    tensionCod: "170 Kv",
+//    corriente: "3150 A",
+//    anoFabricacion: 2012,
+//    bil: "750 KV",
+//    tipo: "Interruptor"
+//};
 
 
 const Asset: React.FC = () => {
+    const { id } = useParams<  string >();
+
+    const [equipmentData, setEquipmentData] = useState<EquipmentData | null>(null);
+    const [metadata, setMetaData] = useState<ApiSingleResponse<Asset>["metadata"] | null>(null);
+    const [events, setEvents] = useState<AssetEvent[]>([]);
+    const [eventsMetadata, setEventsMetadata] = useState<ApiSingleResponse<Asset>["metadata"] | null>(null);
+
     const [activeTab, setActiveTab] = useState<number>(1);
     const [filteredData, setFilteredData] = useState<DataItem[]>([]);
     const [sortField, setSortField] = useState<string | number>('modificado_en');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+    
+    const [loading, setLoading] = useState(true);
+    const [error,setError] = useState("");
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        async function fetchAssetEvents(){
+                if (!id) return;
+            try {
+                const { items, metadata } = await getAssetEvents(id);
+                console.log(items);
+                setEvents(items);
+                setEventsMetadata(metadata);
+                //setFilteredData(items); // display events in table
+            } catch (err) {
+                console.error("Error fetching asset events", err);
+            }
+        }
+        async function fetchEquipmentData(){
+            try{
+                if (!id) return;
+
+                setLoading(true); 
+
+                const {items, metadata}  = await getAssetData(id);
+                // Map APIAsset to EquipmentData
+                const asset: EquipmentData = {
+                    tag: items.tag?.toString() || "N/A",
+                    codigoCEN: items.codigo_cen?.toString()|| "N/A",
+                    codigoSAP: items.codigo_sap?.toString() || "N/A",
+                    codigoNEMA: items.codigo_nema?.toString() || "N/A",
+                    estado: items.tag_estado || "N/A",
+                    marca: items.tag_marca || "N/A",
+                    modelo: items.tag_modelo?.toString() || "N/A",
+                    serie: items.tag_no_serie?.toString() || "N/A",
+                    anoAntiguedad: Number(items.tag_antiguedad)|| 0,
+                    familia: items.tag_tipo_cod?.toString() || "N/A",
+                    empresa: items.empresa || "N/A",
+                    subestacion: items.nombre_subestacion || "N/A",
+                    observaciones: items.observaciones?.toString() || "N/A",
+                    tensionCod: items.tag_t_alta?.toString() || "N/A",
+                    corriente: items.tag_corriente?.toString() || "N/A",
+                    anoFabricacion: Number(items.tag_annofab) || 0,
+                    bil: items.tag_bil?.toString() || "N/A",
+                    tipo: items.tag_tipo?.toString()|| "N/A",
+                    coordenadas: items.coordenadas?.toString(), //Arreglar este
+                    frecuencia: items.frecuencia?.toString(),
+                    peso: items.tag_peso?.toString()
+                    // Agregar campos restantes, y arreglar datos adicionales
+                };
+                setEquipmentData(asset);
+            }catch (err){
+                setError("Error al cargar activo")
+            } finally {
+                setLoading(false);
+            }
+        }
+        if (id) {
+            fetchEquipmentData();
+            fetchAssetEvents();
+        }
+    }, [id]
+    );
 
 
 
-    const tableColumns: ColumnConfig[] = [
+    const tableColumns: ColumnConfig<AssetEvent>[] = [
         { key: 'empresa', label: 'Empresa', sortable: true },
-        { key: 'nombre_subestacion', label: 'Subestación', sortable: true },
-        { key: 'tag_estado_menor', label: 'Estado', sortable: true },
-        { key: 'observaciones', label: 'Observaciones', sortable: true },
+        { key: 'subestacion', label: 'Subestación', sortable: true },
+        { key: 'estado_menor', label: 'Estado', sortable: true },
+        { key: 'observacion', label: 'Observaciones', sortable: true },
         { key: 'encargado', label: 'Encargado', sortable: true },
-        { key: 'fecha_registro', label: 'Modificado en', sortable: true }
+        { key: 'ocurrencia_evento', label: 'Modificado en', sortable: true }
     ];
 
     // Función para manejar el ordenamiento
@@ -92,18 +160,21 @@ const Asset: React.FC = () => {
 
         setFilteredData(sortedData);
     };
-
+    // Early returns for loading/error/null
+    if (loading) return <p className="mt-20 text-center">Cargando activo...</p>;
+    if (error) return <p className="mt-20 text-center text-red-600">{error}</p>;
+    if (!equipmentData) return <p className="mt-20 text-center">Activo no encontrado</p>;
 
     return (
         <>
             <div className="top-0 left-0 justify-center shadow-md z-50 ">
                 <TopBar_l></TopBar_l>
             </div>
-            <div className="max-w-4xl mt-20 mx-auto p-6 bg-white rounded-lg shadow-md border-1 border-black">
+            <div className="max-w-4xl mt-26 mx-auto p-6 bg-white rounded-lg shadow-md border-1 border-black">
 
                 {/* Encabezado con TAG */}
                 <div className="border-b border-gray-200 pb-4 mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800">TAG: {equipmentData.tag}</h1>
+                    <h1 className="text-2xl font-bold text-gray-800">TAG: {equipmentData.tag }</h1>
                     <p className="text-gray-600 mt-1">{equipmentData.familia}</p>
                 </div>
 
@@ -209,7 +280,7 @@ const Asset: React.FC = () => {
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-500">Corriente</label>
-                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.corriente}</p>
+                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.corriente} A</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-500">Año de fabricación</label>
@@ -227,7 +298,7 @@ const Asset: React.FC = () => {
                         </div>
                     )}
 
-                    {activeTab === 3 && (
+                    {/*activeTab === 3 && (
                         <div className="space-y-4">
                             {equipmentData.datosExtra && Object.entries(equipmentData.datosExtra).map(([key, value]) => (
                                 <div key={key}>
@@ -240,20 +311,27 @@ const Asset: React.FC = () => {
                                 <p className="mt-1 text-sm text-gray-900">{equipmentData.coordenadas || "No especificadas"}</p>
                             </div>
                         </div>
-                    )}
+                    )*/}
                 </div>
 
             </div>
-            <div className="flex items-center mb-8 mt-6">
+            <div className="flex items-center mb-8 mt-6 gap-8">
                 <div className="flex-grow border-t border-gray-600"></div>
                 <div className="bg-white px-4 rounded-2xl border-gray-800">
                     <span className="text-lg font-semibold text-black">Registros Historicos</span>
+
                 </div>
+                                    <button
+                        onClick={() => navigate(`/asset/${id}/register-event`)}
+                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition"
+                    >
+                        + Registrar Evento
+                    </button>
                 <div className="flex-grow border-t border-gray-600"></div>
             </div>
-            <div className="relative container mx-auto px-4 py-10 mt-16">
-                <Table
-                    data={filteredData}
+            <div className="relative container mx-auto px-4 py-8 mt-6">
+                <Table<AssetEvent>
+                    data={events}
                     columns={tableColumns}
                     onSort={handleSort}
                     sortField={sortField}

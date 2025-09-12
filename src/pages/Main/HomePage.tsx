@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from "react";
+import {useNavigate} from "react-router-dom"
 import "../styles/style.css"
 import TopBar_l from "../../components/layout/TopBar_logged";
 import Table from "../../components/ui/Table"; // Importa el componente Table
 import type { DataItem, ColumnConfig } from "../../components/ui/Table";
-import type { Asset } from "../../services/assetService";
+import type { Asset, ApiResponse } from "../../services/assetService";
 import { getLatestAssets } from "../../services/assetService";
+
 
 const HomePage: React.FC = () => {
   const [query, setQuery] = useState("");
   const [searchBy, setSearchBy] = useState("tag");
   const [showAdvanced, setShowAdvanced] = useState(false);
+
   const [data, setData] = useState<Asset[]>([]);
   const [filteredData, setFilteredData] = useState<Asset[]>([]);
+  const [metadata, setMetaData] = useState<ApiResponse<Asset>["metadata"] | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -24,6 +29,10 @@ const HomePage: React.FC = () => {
   const [filtroSubestacion, setFiltroSubestacion] = useState("");
   const [filtroFechaDesde, setFiltroFechaDesde] = useState("");
   const [filtroFechaHasta, setFiltroFechaHasta] = useState("");
+
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
+  const navigate = useNavigate();
 
   const tableColumns: ColumnConfig<Asset>[] = [
     { key: 'tag', label: 'TAG', sortable: true },
@@ -50,9 +59,10 @@ const HomePage: React.FC = () => {
     async function fetchData() {
       try {
         setLoading(true);
-        const response = await getLatestAssets(50); // fetch last 50 assets
-        setData(response.items);
-        setFilteredData(response.items);
+        const {items, metadata} = await getLatestAssets(pageSize, page); 
+        setData(items?? []);
+        setFilteredData(items?? []);
+        setMetaData(metadata);
       } catch (err) {
         setError("Error al cargar los activos");
       } finally {
@@ -60,7 +70,13 @@ const HomePage: React.FC = () => {
       }
     }
     fetchData();
-  }, []);
+  }, [page]);
+
+  // Funcion para navegar a asset/id
+
+  const handleRowClick = (id: string) => {
+    navigate(`/asset/${id}`);
+  };
 
   // Función para manejar el ordenamiento
   const handleSort = (field: string | number, direction: 'asc' | 'desc') => {
@@ -135,6 +151,10 @@ const HomePage: React.FC = () => {
       handleSearch();
     }
   };
+
+    if (loading) return <p className="text-center mt-20">Cargando activos...</p>;
+    if (error) return <p className="text-center mt-20 text-red-600">{error}</p>;
+    if (!data || data.length === 0) return <p className="text-center mt-20">No hay activos disponibles</p>;
 
   return (
     <div className="">
@@ -295,17 +315,45 @@ const HomePage: React.FC = () => {
           <div className="flex-grow border-t border-gray-600"></div>
         </div>
 
-        {loading && <p className="text-center text-gray-500">Cargando activos...</p>}
+        {loading && <p className="text-center text-white">Cargando activos...</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
 
         {/* Tabla de resultados usando el componente Table */}
-        <Table<Asset>
+        <Table
           data={filteredData}
           columns={tableColumns}
           onSort={handleSort}
           sortField={sortField}
           sortDirection={sortDirection}
+          onRowClick={(item) => navigate(`/asset/${item.tag}`)}
         />
+
+        {/* Metadata info TENEMOS QUE ARREGLAR METADA EN LA API AHHH porque no viene metadata {...} si no que total, page, limit, items*/} 
+        {metadata && (
+          <div className="mt-4 text-center">
+            <p className="text-sm text-white">
+              Mostrando {filteredData.length} de {metadata.total} activos (página {metadata.page})
+            </p>
+
+            {/* Pagination buttons */}
+            <div className="flex justify-center gap-4 mt-2">
+              <button
+                className="px-4 py-2 pagination-button rounded disabled:opacity-50"
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                disabled={page <= 1}
+              >
+                ← Anterior
+              </button>
+              <button
+                className="px-4 py-2 pagination-button rounded disabled:opacity-50"
+                onClick={() => setPage((prev) => prev + 1)}
+                disabled={metadata.page * metadata.pageSize >= metadata.total}
+              >
+                Siguiente →
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

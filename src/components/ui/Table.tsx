@@ -3,7 +3,7 @@ import '../../pages/styles/style.css'
 
 // Interface genérica para los datos
 export interface DataItem {
-  [key: string]: string | number | boolean | Date;
+  [key: string]: string | number | boolean | Date | undefined;
 }
 
 export interface ColumnConfig<T = DataItem> {
@@ -19,14 +19,16 @@ interface TableProps<T = DataItem> {
   onSort?: (field: keyof T, direction: 'asc' | 'desc') => void;
   sortField?: keyof T;
   sortDirection?: 'asc' | 'desc';
+  onRowClick?: (row: DataItem) => void;
 }
 
 const Table = <T extends DataItem>({
-  data,
+  data = [],
   columns,
   onSort,
   sortField,
-  sortDirection
+  sortDirection,
+  onRowClick
 }: TableProps<T>): React.ReactElement => {
   const handleSort = (field: keyof T) => {
     if (!onSort) return;
@@ -48,13 +50,30 @@ const Table = <T extends DataItem>({
 
   // Función para renderizar el contenido de una celda
   const renderCellContent = (column: ColumnConfig<T>, item: T) => {
+    const value = item[column.key];
     if (column.customRender) {
       return column.customRender(item[column.key], item);
     }
 
+    // If column has a click handler (e.g., onRowClick) and it's the "tag" column
+    if (column.key === 'tag' && onRowClick) {
+      return (
+        <span
+          className="text-blue-600 hover:underline cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation(); // prevent row click if there’s one
+            onRowClick(item);
+          }}
+        >
+          {value != null ? String(value) : ""}
+        </span>
+      );
+
+    }
+    
+
     // Renderizado especial para la columna de estado
     if (column.key === 'tag_estado') {
-      const value = item[column.key];
       return (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${String(value)[0] === "1"
           ? "bg-blue-100 text-blue-800"
@@ -69,10 +88,16 @@ const Table = <T extends DataItem>({
           {String(value)}
         </span>
       );
-    }
 
-    return String(item[column.key]);
+      
+    }
+    // Handle Date, undefined, or other primitive types
+    if (value instanceof Date) return value.toLocaleString();
+    if (value === undefined || value === null) return "";
+    return String(value);
   };
+
+
 
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-1 border-black">
@@ -97,7 +122,10 @@ const Table = <T extends DataItem>({
           <tbody>
             {data.length > 0 ? (
               data.map((item, index) => (
-                <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                <tr 
+                    key={index} 
+                    className={index % 2 === 0 ? "bg-white" : "bg-gray-50"} 
+                  >
                   {columns.map((column) => (
                     <td key={String(column.key)} className="p-4 border-b border-gray-200">
                       {renderCellContent(column, item)}

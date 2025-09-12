@@ -51,3 +51,7 @@
 .tab-button:hover {
   color: black !important;
 }
+
+.pagination-button {
+  background-color: white;
+}
