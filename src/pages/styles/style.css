@@ -8,7 +8,11 @@
 
   color-scheme: light dark;
   color: rgba(0, 0, 0, 0.87);
-  background-color: #d84035;
+  background-color: #808080;
+  background-image: url("../../assets/transformador.jpg");
+  background-blend-mode: darken;
+  background-position-y: 50%;
+  background-attachment: fixed;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
