@@ -3,13 +3,17 @@ import "../styles/style.css"
 import TopBar_l from "../../components/layout/TopBar_logged";
 import Table from "../../components/ui/Table"; // Importa el componente Table
 import type { DataItem, ColumnConfig } from "../../components/ui/Table";
+import type { Asset } from "../../services/assetService";
+import { getLatestAssets } from "../../services/assetService";
 
 const HomePage: React.FC = () => {
   const [query, setQuery] = useState("");
   const [searchBy, setSearchBy] = useState("tag");
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [data, setData] = useState<DataItem[]>([]);
-  const [filteredData, setFilteredData] = useState<DataItem[]>([]);
+  const [data, setData] = useState<Asset[]>([]);
+  const [filteredData, setFilteredData] = useState<Asset[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // Estados para ordenamiento
   const [sortField, setSortField] = useState<string | number>('modificado_en');
@@ -21,7 +25,7 @@ const HomePage: React.FC = () => {
   const [filtroFechaDesde, setFiltroFechaDesde] = useState("");
   const [filtroFechaHasta, setFiltroFechaHasta] = useState("");
 
-  const tableColumns: ColumnConfig[] = [
+  const tableColumns: ColumnConfig<Asset>[] = [
     { key: 'tag', label: 'TAG', sortable: true },
     { key: 'tag_marca', label: 'Marca', sortable: true },
     { key: 'tag_estado', label: 'Estado', sortable: true },
@@ -32,17 +36,30 @@ const HomePage: React.FC = () => {
 
   // Simulación de datos
   useEffect(() => {
-    const fakeData: DataItem[] = [
-      { tag: 1, tag_marca: "Felipe", tag_estado: "100", empresa: "Ayala_Tx", nombre_subestacion: "Santiago", modificado_en: "2020-01-27 15:01:51.000 -0300" },
-      { tag: 11, tag_marca: "PMM", tag_estado: "201", empresa: "Ayala_Tx", nombre_subestacion: "Discord", modificado_en: "2020-01-27 15:01:59.000 -0300" },
-      { tag: 2, tag_marca: "Ana", tag_estado: "200", empresa: "Garay_Tx", nombre_subestacion: "Valparaíso", modificado_en: "2020-01-27 15:01:52.000 -0300" },
-      { tag: 22, tag_marca: "USM", tag_estado: "500", empresa: "Garay_Tx", nombre_subestacion: "Casa Central", modificado_en: "2025-01-27 15:01:52.000 -0300" },
-      { tag: 3, tag_marca: "Carlos", tag_estado: "300", empresa: "Garay_Tx", nombre_subestacion: "Concepción", modificado_en: "2020-01-27 15:01:53.000 -0300" },
-      { tag: 4, tag_marca: "María", tag_estado: "400", empresa: "Ayala_Tx", nombre_subestacion: "La Serena", modificado_en: "2020-01-27 15:01:54.000 -0300" },
-      { tag: 5, tag_marca: "Luis", tag_estado: "500", empresa: "Ayala_Tx", nombre_subestacion: "Antofagasta", modificado_en: "2020-01-27 15:01:55.000 -0300" },
-    ];
-    setData(fakeData);
-    setFilteredData(fakeData);
+    //const fakeData: DataItem[] = [
+    //  { tag: 1, tag_marca: "Felipe", tag_estado: "100", empresa: "Ayala_Tx", nombre_subestacion: "Santiago", modificado_en: "2020-01-27 15:01:51.000 -0300" },
+    //  { tag: 11, tag_marca: "PMM", tag_estado: "201", empresa: "Ayala_Tx", nombre_subestacion: "Discord", modificado_en: "2020-01-27 15:01:59.000 -0300" },
+    //  { tag: 2, tag_marca: "Ana", tag_estado: "200", empresa: "Garay_Tx", nombre_subestacion: "Valparaíso", modificado_en: "2020-01-27 15:01:52.000 -0300" },
+    //  { tag: 22, tag_marca: "USM", tag_estado: "500", empresa: "Garay_Tx", nombre_subestacion: "Casa Central", modificado_en: "2025-01-27 15:01:52.000 -0300" },
+    //  { tag: 3, tag_marca: "Carlos", tag_estado: "300", empresa: "Garay_Tx", nombre_subestacion: "Concepción", modificado_en: "2020-01-27 15:01:53.000 -0300" },
+    //  { tag: 4, tag_marca: "María", tag_estado: "400", empresa: "Ayala_Tx", nombre_subestacion: "La Serena", modificado_en: "2020-01-27 15:01:54.000 -0300" },
+    //  { tag: 5, tag_marca: "Luis", tag_estado: "500", empresa: "Ayala_Tx", nombre_subestacion: "Antofagasta", modificado_en: "2020-01-27 15:01:55.000 -0300" },
+    //];
+    //setData(fakeData);
+    //setFilteredData(fakeData);
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const response = await getLatestAssets(50); // fetch last 50 assets
+        setData(response.items);
+        setFilteredData(response.items);
+      } catch (err) {
+        setError("Error al cargar los activos");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
   }, []);
 
   // Función para manejar el ordenamiento
@@ -278,8 +295,11 @@ const HomePage: React.FC = () => {
           <div className="flex-grow border-t border-gray-600"></div>
         </div>
 
+        {loading && <p className="text-center text-gray-500">Cargando activos...</p>}
+        {error && <p className="text-center text-red-500">{error}</p>}
+
         {/* Tabla de resultados usando el componente Table */}
-        <Table
+        <Table<Asset>
           data={filteredData}
           columns={tableColumns}
           onSort={handleSort}
