@@ -13,6 +13,8 @@
   background-blend-mode: darken;
   background-position-y: 50%;
   background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

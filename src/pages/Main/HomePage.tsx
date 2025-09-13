@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import "../styles/style.css"
 import TopBar_l from "../../components/layout/TopBar_logged";
 import Table from "../../components/ui/Table"; // Importa el componente Table
@@ -59,9 +59,9 @@ const HomePage: React.FC = () => {
     async function fetchData() {
       try {
         setLoading(true);
-        const {items, metadata} = await getLatestAssets(pageSize, page); 
-        setData(items?? []);
-        setFilteredData(items?? []);
+        const { items, metadata } = await getLatestAssets(pageSize, page);
+        setData(items ?? []);
+        setFilteredData(items ?? []);
         setMetaData(metadata);
       } catch (err) {
         setError("Error al cargar los activos");
@@ -152,9 +152,15 @@ const HomePage: React.FC = () => {
     }
   };
 
-    if (loading) return <p className="text-center mt-20">Cargando activos...</p>;
-    if (error) return <p className="text-center mt-20 text-red-600">{error}</p>;
-    if (!data || data.length === 0) return <p className="text-center mt-20">No hay activos disponibles</p>;
+  if (loading) {
+    return (
+      <div className="bg-gray-100 border border-gray-300 rounded-2xl p-4 w-full max-w-sm mx-auto mt-20 shadow">
+        <p className="text-center text-gray-700 font-medium">Cargando activos...</p>
+      </div>
+  )}
+
+  if (error) return <p className="text-center mt-20 text-red-600">{error}</p>;
+  if (!data || data.length === 0) return <p className="text-center mt-20">No hay activos disponibles</p>;
 
   return (
     <div className="">
@@ -164,18 +170,22 @@ const HomePage: React.FC = () => {
 
       <div className="relative container mx-auto px-4 py-10 mt-16 ">
         {/* Panel de búsqueda */}
-        <div className="bg-gray-100 rounded-2xl  p-6 mb-8 border-black border-1">
+        <div className="bg-gray-100 rounded-2xl p-4 sm:p-6 lg:p-8 mb-8 border border-black">
           {/* Título */}
-          <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Buscar activo</h1>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-800">
+            Buscar activo
+          </h1>
+
+          {/* Fila de búsqueda principal */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
+              <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-700">
                 Buscar por:
               </label>
               <select
                 value={searchBy}
                 onChange={(e) => setSearchBy(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
               >
                 <option value="tag">TAG</option>
                 <option value="marca">Marca</option>
@@ -185,21 +195,21 @@ const HomePage: React.FC = () => {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
+              <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-700">
                 Ingrese dato:
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 w-full">
                 <input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Ingrese el dato a buscar..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                  className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                 />
                 <button
                   onClick={handleSearch}
-                  className="px-6 py-2 bg-[#8B322C] text-white rounded-lg hover:bg-[#6B2925] transition font-medium"
+                  className="px-4 sm:px-6 py-2 bg-[#8B322C] text-white rounded-lg hover:bg-[#6B2925] transition font-medium text-sm sm:text-base w-full sm:w-auto"
                 >
                   Buscar
                 </button>
@@ -207,16 +217,16 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Botón para mostrar/ocultar búsqueda avanzada */}
+          {/* Botón mostrar/ocultar */}
           <div className="mt-4 flex justify-center">
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center text-sm text-white hover:text-red-800 transition"
+              className="flex items-center text-xs sm:text-sm text-white hover:text-red-800 transition"
             >
               {showAdvanced ? "Ocultar opciones avanzadas" : "Mostrar opciones avanzadas"}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className={`h-4 w-4 ml-1 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
+                className={`h-3 w-3 sm:h-4 sm:w-4 ml-1 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -226,20 +236,26 @@ const HomePage: React.FC = () => {
             </button>
           </div>
 
-          {/* Opciones de búsqueda avanzada con animación */}
-          <div className={`overflow-hidden transition-all duration-500 ease-in-out ${showAdvanced ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
+          {/* Opciones de búsqueda avanzada */}
+          <div
+            className={`overflow-hidden transition-all duration-500 ease-in-out ${showAdvanced ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+              }`}
+          >
             <div className="mt-6 pt-6 border-t border-gray-400">
-              <h3 className="text-lg font-semibold mb-4 text-gray-700">Opciones de Búsqueda Avanzada</h3>
+              <h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-700">
+                Opciones de Búsqueda Avanzada
+              </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-4 pr-4 ">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 px-2 sm:px-4">
+                {/* Estado */}
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                  <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
                     Filtrar por Estado:
                   </label>
                   <select
                     value={filtroEstado}
                     onChange={(e) => setFiltroEstado(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                   >
                     <option value="">Todos los estados</option>
                     <option value="100">Estado 100</option>
@@ -250,8 +266,9 @@ const HomePage: React.FC = () => {
                   </select>
                 </div>
 
+                {/* Subestación */}
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                  <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
                     Filtrar por Subestación:
                   </label>
                   <input
@@ -259,45 +276,48 @@ const HomePage: React.FC = () => {
                     value={filtroSubestacion}
                     onChange={(e) => setFiltroSubestacion(e.target.value)}
                     placeholder="Nombre de subestación..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                   />
                 </div>
 
+                {/* Fecha desde */}
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                  <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
                     Fecha desde:
                   </label>
                   <input
                     type="date"
                     value={filtroFechaDesde}
                     onChange={(e) => setFiltroFechaDesde(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                   />
                 </div>
 
+                {/* Fecha hasta */}
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                  <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
                     Fecha hasta:
                   </label>
                   <input
                     type="date"
                     value={filtroFechaHasta}
                     onChange={(e) => setFiltroFechaHasta(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                   />
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end space-x-3">
+              {/* Botones de acción */}
+              <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3">
                 <button
                   onClick={handleClearFilters}
-                  className="px-4 py-2 border border-gray-300 text-red-500 rounded-lg hover:bg-gray-100 transition"
+                  className="px-4 py-2 border border-gray-300 text-red-500 rounded-lg hover:bg-gray-100 transition text-sm sm:text-base"
                 >
                   Limpiar Filtros
                 </button>
                 <button
                   onClick={handleSearch}
-                  className="px-4 py-2 bg-[#8B322C] text-white rounded-lg hover:bg-[#6B2925] transition"
+                  className="px-4 py-2 bg-[#8B322C] text-white rounded-lg hover:bg-[#6B2925] transition text-sm sm:text-base"
                 >
                   Aplicar Filtros
                 </button>
@@ -305,6 +325,7 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         </div>
+
 
         {/* Separador */}
         <div className="flex items-center mb-8 ">
@@ -328,7 +349,7 @@ const HomePage: React.FC = () => {
           onRowClick={(item) => navigate(`/asset/${item.tag}`)}
         />
 
-        {/* Metadata info TENEMOS QUE ARREGLAR METADA EN LA API AHHH porque no viene metadata {...} si no que total, page, limit, items*/} 
+        {/* Metadata info TENEMOS QUE ARREGLAR METADA EN LA API AHHH porque no viene metadata {...} si no que total, page, limit, items*/}
         {metadata && (
           <div className="mt-4 text-center">
             <p className="text-sm text-white">

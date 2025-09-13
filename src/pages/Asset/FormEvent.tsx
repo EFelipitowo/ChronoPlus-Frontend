@@ -312,7 +312,7 @@ const FormAsset: React.FC = () => {
                 <TopBar_l />
             </div>
 
-            <div className="pt-16 container mx-auto px-4 py-8 mt-6">
+            <div className="pt-16 container mx-auto px-4 py-8 mt-12">
                 <div className="max-w-4xl mx-auto">
                     {/* Header */}
                     <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">

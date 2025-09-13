@@ -4,13 +4,15 @@ import "../../pages/styles/style.css"
 
 const TopBar_l: React.FC = () => {
   return (
-    <header className="top-bar">
-      {/* Logo en la izquierda */}
-      <div className="flex-shrink-0">
-        <img src={logo} alt="Logo" className="h-auto w-[120%] min-w-[80px] max-w-[200px] object-contain" />
+    <header className="top-bar flex items-center px-4">
+      {/* Logo adaptable */}
+      <div className="w-[30vw] max-w-[200px] min-w-[80px] aspect-[3/1]">
+        <img
+          src={logo}
+          alt="Logo"
+          className="w-full h-full object-contain"
+        />
       </div>
-
-
     </header>
   );
 };
