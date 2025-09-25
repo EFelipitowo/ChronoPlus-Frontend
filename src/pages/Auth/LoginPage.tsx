@@ -19,7 +19,7 @@ const Login: React.FC = () => {
     try {
       const data = await login(email, password);
       console.log("Login success:", data);
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.accessToken);
       navigate("/home");
     } catch {
       setError("Correo o contraseña inválidos");
