@@ -2,6 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import TopBar_l from "../../components/layout/TopBar_logged";
 import { getAssetData } from "../../services/assetService";
+import {jwtDecode} from "jwt-decode";
+
+interface TokenPayload {
+    id: string;
+    email: string;
+    exp: number;
+    iat: number;
+}
 
 interface AssetData {
     id: string;
@@ -15,18 +23,19 @@ interface AssetData {
 }
 
 interface Empresa {
-    id: number;
-    nombre: string;
+    //id: number;
+    //nombre: string;
+    empresa : string
 }
 
 interface Subestacion {
-    id: number;
-    nombre: string;
+    nombre_subestacion : string;
 }
 
 interface Encargado {
-    id: number;
-    nombre: string;
+    user_id: string;
+    nombre_usuario: string;
+
 }
 
 // Definir los estados menores por cada estado mayor
@@ -84,6 +93,8 @@ const FormAsset: React.FC = () => {
     const [assetData, setAssetData] = useState<AssetData | null>(null);
     const [estadosMenores, setEstadosMenores] = useState<Array<{ value: string, label: string }>>([]);
 
+    const token = localStorage.getItem('token');
+
     // Estados para datos desde API
     const [empresas, setEmpresas] = useState<Empresa[]>([]);
     const [subestaciones, setSubestaciones] = useState<Subestacion[]>([]);
@@ -93,6 +104,7 @@ const FormAsset: React.FC = () => {
     const [showEncargadoSuggestions, setShowEncargadoSuggestions] = useState(false);
     const [filteredEncargados, setFilteredEncargados] = useState<Encargado[]>([]);
     const [selectedEncargadoId, setSelectedEncargadoId] = useState<string>("");
+
 
     const [formData, setFormData] = useState({
         estadoMayor: "",
@@ -110,17 +122,32 @@ const FormAsset: React.FC = () => {
             setLoadingData(true);
 
             // Obtener encargados
-            const encargadosResponse = await fetch('/api/encargados');
+            const encargadosResponse = await fetch('http://localhost:3000/api/users', {
+                headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                        }
+            });
             const encargadosData = await encargadosResponse.json();
             setEncargados(encargadosData);
 
             // Obtener empresas
-            const empresasResponse = await fetch('/api/empresas');
+            const empresasResponse = await fetch('http://localhost:3000/api/companies', {
+                headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                        }
+            });
             const empresasData = await empresasResponse.json();
             setEmpresas(empresasData);
 
             // Obtener subestaciones
-            const subestacionesResponse = await fetch('/api/subestaciones');
+            const subestacionesResponse = await fetch('http://localhost:3000/api/substations', {
+                headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                        }
+            });
             const subestacionesData = await subestacionesResponse.json();
             setSubestaciones(subestacionesData);
 
@@ -142,7 +169,7 @@ const FormAsset: React.FC = () => {
         }
 
         const filtered = encargados.filter(encargado =>
-            encargado.nombre.toLowerCase().includes(searchText.toLowerCase())
+            encargado.nombre_usuario.toLowerCase().includes(searchText.toLowerCase())
         );
 
         setFilteredEncargados(filtered);
@@ -153,15 +180,36 @@ const FormAsset: React.FC = () => {
     const selectEncargado = (encargado: Encargado) => {
         setFormData(prev => ({
             ...prev,
-            encargado: encargado.nombre
+            encargado: encargado.nombre_usuario
         }));
-        setSelectedEncargadoId(encargado.id.toString());
+        //setSelectedEncargadoId(encargado.user_id.toString());
+        setSelectedEncargadoId(encargado.nombre_usuario);
         setShowEncargadoSuggestions(false);
     };
+
+    // Token check y redirección si no está autenticado
+    useEffect(() => {
+        if (!token) {
+            navigate('/login');
+        }
+        try {
+            const decoded = jwtDecode<TokenPayload>(token);
+            if (decoded.email) {
+                setFormData((prev) => ({
+                    ...prev,
+                    encargado: decoded.email.split('@')[0] // encargado inicial
+                }));
+            }
+        } catch (err) {
+            console.error("Invalid token:", err);
+            navigate("/login");
+        }        
+    }, [token, navigate]);
 
 
     // Actualizar estados menores cuando cambia el estado mayor
     useEffect(() => {
+
         if (formData.estadoMayor) {
             const nuevosEstadosMenores = estadosMenoresPorMayor[formData.estadoMayor] || [];
             setEstadosMenores(nuevosEstadosMenores);
@@ -183,7 +231,7 @@ const FormAsset: React.FC = () => {
                 await fetchDataFromAPI();
 
 
-                const {items, metadata} = await getAsset(id);
+                const {items, metadata} = await getAssetData(id);
                 // Simulación de datos del activo - reemplazar con llamada API real
                 //const mockData: AssetData = {
                 //    id: id || "1",
@@ -197,24 +245,24 @@ const FormAsset: React.FC = () => {
                 //};
 
                 setAssetData(items);
-                setFormData({
-                    estadoMayor: items.estado_mayor,
-                    estadoMenor: items.estador_menor,
-                    empresa: items.empresa,
-                    subestacion: items.subestacion,
-                    encargado: items.encargado,
-                    observaciones: items.observacion
-                });
+                setFormData(prev => ({
+                    ...prev,
+                    estadoMayor: String(items.tag_estado_mayor ?? prev.estadoMayor),
+                    estadoMenor: String(items.tag_estado ?? prev.estadoMenor),
+                    empresa: String(items.empresa ?? prev.empresa),
+                    subestacion: String(items.nombre_subestacion ?? prev.subestacion),
+                    encargado: String(items.encargado ?? prev.encargado),
+                }));
 
                 // Buscar el ID del encargado por su nombre
-                const encargadoEncontrado = encargados.find(e => e.nombre === mockData.encargado);
-                if (encargadoEncontrado) {
-                    setSelectedEncargadoId(encargadoEncontrado.id.toString());
-                }
+                //const encargadoEncontrado = encargados.find(e => e.nombre === mockData.encargado);
+                //if (encargadoEncontrado) {
+                //    setSelectedEncargadoId(encargadoEncontrado.id.toString());
+                //}
 
                 // Inicializar estados menores
-                const estadosIniciales = estadosMenoresPorMayor[mockData.estadoMayor] || [];
-                setEstadosMenores(estadosIniciales);
+                //const estadosIniciales = estadosMenoresPorMayor[mockData.estadoMayor] || [];
+                //setEstadosMenores(estadosIniciales);
 
                 setLoading(false);
             } catch (error) {
@@ -224,7 +272,7 @@ const FormAsset: React.FC = () => {
         };
 
         fetchAssetData();
-    }, [id, encargados]);
+    }, [id]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -245,29 +293,30 @@ const FormAsset: React.FC = () => {
 
         try {
             // Validar que se haya seleccionado un encargado válido
-            if (!selectedEncargadoId) {
+            if (!selectEncargado) {
                 alert("Por favor, seleccione un encargado válido de la lista de sugerencias");
                 return;
             }
 
             // Preparar datos para enviar
             const dataToSend = {
-                id,
-                estado_mayor: formData.estadoMayor,
-                estado_menor: formData.estadoMenor,
-                empresa_id: parseInt(formData.empresa),
-                subestacion: formData.subestacion,
-                encargado_id: parseInt(selectedEncargadoId),
-                observaciones: formData.observaciones
+                tag: id,
+                status_top: formData.estadoMayor,
+                status_bot: formData.estadoMenor,
+                company: formData.empresa,
+                substation: formData.subestacion,
+                inCharge: selectedEncargadoId,
+                observation: formData.observaciones
             };
 
             console.log("Datos a actualizar:", dataToSend);
 
             // Enviar a la API
-            const response = await fetch(`/api/activos/${id}`, {
-                method: 'PUT',
+            const response = await fetch(`http://localhost:3000/api/events`, {
+                method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
+                    ,"Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify(dataToSend),
             });
@@ -401,8 +450,8 @@ const FormAsset: React.FC = () => {
                                 >
                                     <option value="">Seleccione una empresa</option>
                                     {empresas.map(empresa => (
-                                        <option key={empresa.id} value={empresa.id}>
-                                            {empresa.nombre}
+                                        <option key={empresa.empresa} value={empresa.empresa}>
+                                            {empresa.empresa}
                                         </option>
                                     ))}
                                 </select>
@@ -423,8 +472,8 @@ const FormAsset: React.FC = () => {
                                     >
                                         <option value="">Seleccione una subestación</option>
                                         {subestaciones.map(subestacion => (
-                                            <option key={subestacion.id} value={subestacion.nombre}>
-                                                {subestacion.nombre}
+                                            <option key={subestacion.nombre_subestacion} value={subestacion.nombre_subestacion}>
+                                                {subestacion.nombre_subestacion}
                                             </option>
                                         ))}
                                     </select>
@@ -457,11 +506,11 @@ const FormAsset: React.FC = () => {
                                 <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                                     {filteredEncargados.map(encargado => (
                                         <div
-                                            key={encargado.id}
+                                            key={encargado.nombre_usuario}
                                             className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                                             onClick={() => selectEncargado(encargado)}
                                         >
-                                            {encargado.nombre}
+                                            {encargado.nombre_usuario}
                                         </div>
                                     ))}
                                 </div>

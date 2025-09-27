@@ -9,7 +9,7 @@ import { getLatestAssets } from "../../services/assetService";
 
 
 const HomePage: React.FC = () => {
-  const [query, setQuery] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const [searchBy, setSearchBy] = useState("tag");
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -24,7 +24,8 @@ const HomePage: React.FC = () => {
   const [sortField, setSortField] = useState<string | number>('modificado_en');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-  // Estados para filtros avanzados
+  // Estados para filtros 
+  const [filtroMarca, setFiltroMarca] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("");
   const [filtroSubestacion, setFiltroSubestacion] = useState("");
   const [filtroFechaDesde, setFiltroFechaDesde] = useState("");
@@ -44,36 +45,34 @@ const HomePage: React.FC = () => {
   ];
 
   // Simulación de datos
-  useEffect(() => {
-    //const fakeData: DataItem[] = [
-    //  { tag: 1, tag_marca: "Felipe", tag_estado: "100", empresa: "Ayala_Tx", nombre_subestacion: "Santiago", modificado_en: "2020-01-27 15:01:51.000 -0300" },
-    //  { tag: 11, tag_marca: "PMM", tag_estado: "201", empresa: "Ayala_Tx", nombre_subestacion: "Discord", modificado_en: "2020-01-27 15:01:59.000 -0300" },
-    //  { tag: 2, tag_marca: "Ana", tag_estado: "200", empresa: "Garay_Tx", nombre_subestacion: "Valparaíso", modificado_en: "2020-01-27 15:01:52.000 -0300" },
-    //  { tag: 22, tag_marca: "USM", tag_estado: "500", empresa: "Garay_Tx", nombre_subestacion: "Casa Central", modificado_en: "2025-01-27 15:01:52.000 -0300" },
-    //  { tag: 3, tag_marca: "Carlos", tag_estado: "300", empresa: "Garay_Tx", nombre_subestacion: "Concepción", modificado_en: "2020-01-27 15:01:53.000 -0300" },
-    //  { tag: 4, tag_marca: "María", tag_estado: "400", empresa: "Ayala_Tx", nombre_subestacion: "La Serena", modificado_en: "2020-01-27 15:01:54.000 -0300" },
-    //  { tag: 5, tag_marca: "Luis", tag_estado: "500", empresa: "Ayala_Tx", nombre_subestacion: "Antofagasta", modificado_en: "2020-01-27 15:01:55.000 -0300" },
-    //];
-    //setData(fakeData);
-    //setFilteredData(fakeData);
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const { items, metadata } = await getLatestAssets(pageSize, page);
-        setData(items ?? []);
-        setFilteredData(items ?? []);
-        setMetaData(metadata);
-      } catch (err) {
-        setError("Error al cargar los activos");
-      } finally {
-        setLoading(false);
-      }
+useEffect(() => {
+  async function fetchData() {
+    try {
+      setLoading(true);
+      const { items, metadata } = await getLatestAssets(pageSize, page,
+        ["tag", "brand", "status", "company", "substation_name", "d.modificado_en"], 
+        {
+        status: filtroEstado,
+        substation_name: filtroSubestacion,
+        brand: filtroMarca,
+        fechaDesde: filtroFechaDesde,
+        fechaHasta: filtroFechaHasta
+        }
+      );
+      setData(items ?? []);
+      setFilteredData(items ?? []);
+      setMetaData(metadata);
+    } catch (err) {
+      setError("Error al cargar los activos");
+    } finally {
+      setLoading(false);
     }
-    fetchData();
-  }, [page]);
+  }
+  fetchData();
+}, [page]);
+
 
   // Funcion para navegar a asset/id
-
   const handleRowClick = (id: string) => {
     navigate(`/asset/${id}`);
   };
@@ -97,54 +96,62 @@ const HomePage: React.FC = () => {
   };
 
   // Filtrado de datos según búsqueda
-  const handleSearch = () => {
-    if (!query && !filtroEstado && !filtroSubestacion && !filtroFechaDesde && !filtroFechaHasta) {
-      setFilteredData(data);
-      return;
-    }
+const handleSearch = async () => {
+  try {
+    setLoading(true);
+    setPage(1); // reset to first page when starting a new search
 
-    const results = data.filter((item) => {
-      const searchValue = query.toLowerCase();
-      let matchesBasic = false;
-
-      switch (searchBy) {
-        case "tag":
-          matchesBasic = item.tag.toString().includes(searchValue);
-          break;
-        case "marca":
-          matchesBasic = String(item.tag_marca).toLowerCase().includes(searchValue);
-          break;
-        case "estado":
-          matchesBasic = String(item.tag_estado).toLowerCase().includes(searchValue);
-          break;
-        case "subestacion":
-          matchesBasic = String(item.nombre_subestacion).toLowerCase().includes(searchValue);
-          break;
-        default:
-          matchesBasic = true;
+      const filterParams: Record<string, any> = {
+        status: filtroEstado,
+        substation_name: filtroSubestacion,
+        brand: filtroMarca,
+        fechaDesde: filtroFechaDesde,
+        fechaHasta: filtroFechaHasta
+      };
+    
+      // Add main search bar filter dynamically
+      if (searchValue) {
+        filterParams[searchBy] = searchValue;
       }
 
-      const matchesEstado = !filtroEstado || item.tag_estado === filtroEstado;
-      const matchesSubestacion = !filtroSubestacion || String(item.nombre_subestacion).toLowerCase().includes(filtroSubestacion.toLowerCase());
-      const matchesFecha = true;
+    const { items, metadata } = await getLatestAssets(pageSize, 1, 
+      ["tag", "brand", "status", "company", "substation_name", "d.modificado_en"],
+      filterParams
+    );
 
-      return matchesBasic && matchesEstado && matchesSubestacion && matchesFecha;
-    });
+    setData(items ?? []);
+    setFilteredData(items ?? []); // you could drop filteredData and just use data
+    setMetaData(metadata);
+  } catch (err) {
+    setError("Error al buscar activos");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    setFilteredData(results);
-  };
 
   // Limpiar filtros
-  const handleClearFilters = () => {
-    setQuery("");
-    setFiltroEstado("");
-    setFiltroSubestacion("");
-    setFiltroFechaDesde("");
-    setFiltroFechaHasta("");
-    setFilteredData(data);
-    setSortField('tag');
-    setSortDirection('asc');
-  };
+const handleClearFilters = async () => {
+  setSearchValue("");
+  setFiltroEstado("");
+  setFiltroSubestacion("");
+  setFiltroFechaDesde("");
+  setFiltroFechaHasta("");
+  setPage(1); // reset page
+
+  try {
+    setLoading(true);
+    const { items, metadata } = await getLatestAssets(pageSize, 1);
+    setData(items ?? []);
+    setFilteredData(items ?? []);
+    setMetaData(metadata);
+  } catch (err) {
+    setError("Error al limpiar filtros");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -188,9 +195,9 @@ const HomePage: React.FC = () => {
                 className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
               >
                 <option value="tag">TAG</option>
-                <option value="marca">Marca</option>
-                <option value="estado">Estado</option>
-                <option value="subestacion">Subestación</option>
+                <option value="brand">Marca</option>
+                <option value="status">Estado</option>
+                <option value="substation_name">Subestación</option>
               </select>
             </div>
 
@@ -201,8 +208,8 @@ const HomePage: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-2 w-full">
                 <input
                   type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Ingrese el dato a buscar..."
                   className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
@@ -258,11 +265,11 @@ const HomePage: React.FC = () => {
                     className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                   >
                     <option value="">Todos los estados</option>
-                    <option value="100">Estado 100</option>
-                    <option value="200">Estado 200</option>
-                    <option value="300">Estado 300</option>
-                    <option value="400">Estado 400</option>
-                    <option value="500">Estado 500</option>
+                    <option value="10">Estado 100</option>
+                    <option value="20">Estado 200</option>
+                    <option value="30">Estado 300</option>
+                    <option value="40">Estado 400</option>
+                    <option value="50">Estado 500</option>
                   </select>
                 </div>
 
@@ -368,7 +375,7 @@ const HomePage: React.FC = () => {
               <button
                 className="px-4 py-2 pagination-button rounded disabled:opacity-50"
                 onClick={() => setPage((prev) => prev + 1)}
-                disabled={metadata.page * metadata.pageSize >= metadata.total}
+                disabled={metadata?.page * metadata?.pageSize >= metadata?.total}
               >
                 Siguiente →
               </button>

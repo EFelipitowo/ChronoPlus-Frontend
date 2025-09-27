@@ -55,6 +55,22 @@ interface EquipmentData {
 //};
 
 
+const formatTimestamp = (timestamp: string | number | Date | undefined | null) => {
+    if (!timestamp) return "-";
+    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+    return date.toLocaleString("es-CL", { 
+        timeZone: "America/Santiago",  // Adjust to your time zone
+        year: "2-digit",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+    });
+};
+
+
 const Asset: React.FC = () => {
     const { id } = useParams<  string >();
 
@@ -81,7 +97,6 @@ const Asset: React.FC = () => {
                 console.log(items);
                 setEvents(items);
                 setEventsMetadata(metadata);
-                //setFilteredData(items); // display events in table
             } catch (err) {
                 console.error("Error fetching asset events", err);
             }
@@ -132,6 +147,9 @@ const Asset: React.FC = () => {
     }, [id]
     );
 
+    useEffect(() => {
+        setFilteredData(events);
+    }, [events]);
 
 
     const tableColumns: ColumnConfig<AssetEvent>[] = [
@@ -140,7 +158,12 @@ const Asset: React.FC = () => {
         { key: 'estado_menor', label: 'Estado', sortable: true },
         { key: 'observacion', label: 'Observaciones', sortable: true },
         { key: 'encargado', label: 'Encargado', sortable: true },
-        { key: 'ocurrencia_evento', label: 'Modificado en', sortable: true }
+        { 
+            key: 'ocurrencia_evento', 
+            label: 'Modificado en', 
+            sortable: true,
+            customRender: (value) => formatTimestamp(value) 
+        }
     ];
 
     // Función para manejar el ordenamiento
@@ -149,10 +172,10 @@ const Asset: React.FC = () => {
         setSortDirection(direction);
 
         const sortedData = [...filteredData].sort((a, b) => {
-            if (a[field] < b[field]) {
+            if (a[field]! < b[field]!) {
                 return direction === 'asc' ? -1 : 1;
             }
-            if (a[field] > b[field]) {
+            if (a[field]! > b[field]!) {
                 return direction === 'asc' ? 1 : -1;
             }
             return 0;
@@ -331,7 +354,7 @@ const Asset: React.FC = () => {
             </div>
             <div className="relative container mx-auto px-4 py-8 mt-6">
                 <Table<AssetEvent>
-                    data={events}
+                    data={filteredData}
                     columns={tableColumns}
                     onSort={handleSort}
                     sortField={sortField}

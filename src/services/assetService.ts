@@ -43,9 +43,34 @@ export interface Asset extends DataItem {
 }
 
 // Fetch latest modified assets
-export function getLatestAssets(limit: number = 20, page: number = 1): Promise<ApiResponse<Asset>> {
-    return apiFetch<ApiResponse<Asset>>(`/assets?sort=created_at&order=desc&limit=${limit}&page=${page}`);
+// Fetch assets with pagination + filters
+export function getLatestAssets(
+  limit: number = 20,
+  page: number = 1,
+  fields: string[] = [],               // optional fields to retrieve
+  filterParams: Record<string, any> = {} // filters to apply
+): Promise<ApiResponse<Asset>> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    page: String(page),
+    sort: "updated_at",  // or "creado_en", depending on your default
+    order: "desc",
+  });
+
+  if (fields.length > 0) {
+    params.append("fields", fields.join(",")); // comma-separated projection
+  }
+
+  // Add filters, skip empty values
+  Object.entries(filterParams).forEach(([key, value]) => {
+    if (value !== "" && value != null) {
+      params.append(key, String(value));
+    }
+  });
+  console.log("Fetching assets with params:", params.toString());
+  return apiFetch<ApiResponse<Asset>>(`/assets?${params.toString()}`);
 }
+
 
 
 // Obtener activo segun su ID (tag)
