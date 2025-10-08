@@ -93,7 +93,7 @@ const Table = <T extends DataItem>({
     }
     // Handle Date, undefined, or other primitive types
     if (value instanceof Date) return value.toLocaleString();
-    if (value === undefined || value === null) return "";
+    if (value === undefined || value === null) return "N/A";
     return String(value);
   };
 

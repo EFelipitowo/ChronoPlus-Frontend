@@ -28,6 +28,8 @@ const HomePage: React.FC = () => {
   const [filtroMarca, setFiltroMarca] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("");
   const [filtroSubestacion, setFiltroSubestacion] = useState("");
+  const [filtroNema, setFiltroNema] = useState("");
+  const [filtroCen, setFiltroCen] = useState("");
   const [filtroFechaDesde, setFiltroFechaDesde] = useState("");
   const [filtroFechaHasta, setFiltroFechaHasta] = useState("");
 
@@ -35,13 +37,31 @@ const HomePage: React.FC = () => {
   const pageSize = 20;
   const navigate = useNavigate();
 
+  // Utility, consider moving to utility file (its also used in Asset.tsx)
+  const formatTimestamp = (timestamp: string | number | Date | undefined | null) => {
+      if (!timestamp) return "-";
+      const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+      return date.toLocaleString("es-CL", { 
+          timeZone: "America/Santiago",  // Adjust to your time zone
+          year: "2-digit",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false
+      });
+  };  
+
   const tableColumns: ColumnConfig<Asset>[] = [
     { key: 'tag', label: 'TAG', sortable: true },
     { key: 'tag_marca', label: 'Marca', sortable: true },
     { key: 'tag_estado', label: 'Estado', sortable: true },
+    { key: 'codigo_nema', label : 'NEMA', sortable: true },
+    { key: 'codigo_cen', label: 'CEN', sortable: true },
     { key: 'empresa', label: 'Empresa', sortable: true },
     { key: 'nombre_subestacion', label: 'Subestación', sortable: true },
-    { key: 'modificado_en', label: 'Ultima Actualización', sortable: true }
+    { key: 'modificado_en', label: 'Ultima Actualización', sortable: true, customRender: (value) => formatTimestamp(value) }
   ];
 
   // Simulación de datos
@@ -50,13 +70,13 @@ useEffect(() => {
     try {
       setLoading(true);
       const { items, metadata } = await getLatestAssets(pageSize, page,
-        ["tag", "brand", "status", "company", "substation_name", "d.modificado_en"], 
+        ["tag", "brand", "status", "company", "substation_name","nema", "cen", "d.modificado_en", ], 
         {
         status: filtroEstado,
         substation_name: filtroSubestacion,
         brand: filtroMarca,
-        fechaDesde: filtroFechaDesde,
-        fechaHasta: filtroFechaHasta
+        from: filtroFechaDesde,
+        to: filtroFechaHasta
         }
       );
       setData(items ?? []);
@@ -105,8 +125,8 @@ const handleSearch = async () => {
         status: filtroEstado,
         substation_name: filtroSubestacion,
         brand: filtroMarca,
-        fechaDesde: filtroFechaDesde,
-        fechaHasta: filtroFechaHasta
+        from: filtroFechaDesde,
+        to: filtroFechaHasta
       };
     
       // Add main search bar filter dynamically
@@ -115,7 +135,7 @@ const handleSearch = async () => {
       }
 
     const { items, metadata } = await getLatestAssets(pageSize, 1, 
-      ["tag", "brand", "status", "company", "substation_name", "d.modificado_en"],
+      ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "nema", "cen"],
       filterParams
     );
 
@@ -180,7 +200,7 @@ const handleClearFilters = async () => {
         <div className="bg-gray-100 rounded-2xl p-4 sm:p-6 lg:p-8 mb-8 border border-black">
           {/* Título */}
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-800">
-            Buscar activo
+            Buscador de Activos
           </h1>
 
           {/* Fila de búsqueda principal */}
@@ -198,6 +218,8 @@ const handleClearFilters = async () => {
                 <option value="brand">Marca</option>
                 <option value="status">Estado</option>
                 <option value="substation_name">Subestación</option>
+                <option value="nema">NEMA</option>
+                <option value="cen">CEN</option>
               </select>
             </div>
 
@@ -230,7 +252,7 @@ const handleClearFilters = async () => {
               onClick={() => setShowAdvanced(!showAdvanced)}
               className="flex items-center text-xs sm:text-sm text-white hover:text-red-800 transition"
             >
-              {showAdvanced ? "Ocultar opciones avanzadas" : "Mostrar opciones avanzadas"}
+              {showAdvanced ? "Ocultar Filtros Adicionales" : "Mostrar Filtros Adicionales"}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className={`h-3 w-3 sm:h-4 sm:w-4 ml-1 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
@@ -250,7 +272,7 @@ const handleClearFilters = async () => {
           >
             <div className="mt-6 pt-6 border-t border-gray-400">
               <h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-700">
-                Opciones de Búsqueda Avanzada
+                Opciones de Filtros Adicionales
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 px-2 sm:px-4">
@@ -338,7 +360,7 @@ const handleClearFilters = async () => {
         <div className="flex items-center mb-8 ">
           <div className="flex-grow border-t border-gray-600"></div>
           <div className="bg-white px-4 rounded-2xl border-gray-600">
-            <span className="text-lg font-semibold text-gray-700">Búsqueda Avanzada</span>
+            <span className="text-lg font-semibold text-gray-700">Resultados Búsqueda</span>
           </div>
           <div className="flex-grow border-t border-gray-600"></div>
         </div>
