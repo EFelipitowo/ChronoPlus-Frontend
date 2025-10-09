@@ -18,8 +18,9 @@ const MapPage: React.FC = () => {
                     "tag",
                     "latitud",
                     "longitud",
-                    "nombre_subestacion",
-                    "empresa",
+                    "substation_name",
+                    "company",
+                    "status"
                 ]);
 
                 setAssets(items ?? []);
