@@ -73,7 +73,7 @@ const Table = <T extends DataItem>({
     
 
     // Renderizado especial para la columna de estado
-    if (column.key === 'tag_estado') {
+    if (column.key === 'tag_estado' || column.key === "estado_menor") {
       return (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${String(value)[0] === "1"
           ? "bg-blue-100 text-blue-800"

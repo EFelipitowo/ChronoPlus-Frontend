@@ -8,7 +8,7 @@ import { getAssetData, getAssetEvents } from '../../services/assetService';
 import type { ApiSingleResponse, Asset, AssetEvent } from '../../services/assetService';
 
 // Definimos los tipos TypeScript para nuestros datos
-interface EquipmentData {
+export interface EquipmentData {
     tag: string;
     codigoCEN: string;
     codigoSAP: string;
@@ -21,7 +21,8 @@ interface EquipmentData {
     familia: string;
     empresa: string;
     subestacion: string;
-    coordenadas?: string;
+    latitud: number;
+    longitud: number;
     observaciones: string;
     tensionCod: string;
     frecuencia?: string;
@@ -58,7 +59,7 @@ interface EquipmentData {
 const formatTimestamp = (timestamp: string | number | Date | undefined | null) => {
     if (!timestamp) return "-";
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-    return date.toLocaleString("es-CL", { 
+    return date.toLocaleString("es-CL", {
         timeZone: "America/Santiago",  // Adjust to your time zone
         year: "2-digit",
         month: "2-digit",
@@ -72,7 +73,7 @@ const formatTimestamp = (timestamp: string | number | Date | undefined | null) =
 
 
 const Asset: React.FC = () => {
-    const { id } = useParams<  string >();
+    const { id } = useParams<string>();
 
     const [equipmentData, setEquipmentData] = useState<EquipmentData | null>(null);
     const [metadata, setMetaData] = useState<ApiSingleResponse<Asset>["metadata"] | null>(null);
@@ -83,15 +84,15 @@ const Asset: React.FC = () => {
     const [filteredData, setFilteredData] = useState<DataItem[]>([]);
     const [sortField, setSortField] = useState<string | number>('modificado_en');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-    
+
     const [loading, setLoading] = useState(true);
-    const [error,setError] = useState("");
+    const [error, setError] = useState("");
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        async function fetchAssetEvents(){
-                if (!id) return;
+        async function fetchAssetEvents() {
+            if (!id) return;
             try {
                 const { items, metadata } = await getAssetEvents(id);
                 console.log(items);
@@ -101,24 +102,24 @@ const Asset: React.FC = () => {
                 console.error("Error fetching asset events", err);
             }
         }
-        async function fetchEquipmentData(){
-            try{
+        async function fetchEquipmentData() {
+            try {
                 if (!id) return;
 
-                setLoading(true); 
+                setLoading(true);
 
-                const {items, metadata}  = await getAssetData(id);
+                const { items, metadata } = await getAssetData(id);
                 // Map APIAsset to EquipmentData
                 const asset: EquipmentData = {
                     tag: items.tag?.toString() || "N/A",
-                    codigoCEN: items.codigo_cen?.toString()|| "N/A",
+                    codigoCEN: items.codigo_cen?.toString() || "N/A",
                     codigoSAP: items.codigo_sap?.toString() || "N/A",
                     codigoNEMA: items.codigo_nema?.toString() || "N/A",
                     estado: items.tag_estado || "N/A",
                     marca: items.tag_marca || "N/A",
                     modelo: items.tag_modelo?.toString() || "N/A",
                     serie: items.tag_no_serie?.toString() || "N/A",
-                    anoAntiguedad: Number(items.tag_antiguedad)|| 0,
+                    anoAntiguedad: Number(items.tag_antiguedad) || 0,
                     familia: items.tag_tipo_cod?.toString() || "N/A",
                     empresa: items.empresa || "N/A",
                     subestacion: items.nombre_subestacion || "N/A",
@@ -127,14 +128,15 @@ const Asset: React.FC = () => {
                     corriente: items.tag_corriente?.toString() || "N/A",
                     anoFabricacion: Number(items.tag_annofab) || 0,
                     bil: items.tag_bil?.toString() || "N/A",
-                    tipo: items.tag_tipo?.toString()|| "N/A",
-                    coordenadas: items.coordenadas?.toString(), //Arreglar este
+                    tipo: items.tag_tipo?.toString() || "N/A",
+                    latitud: items.latitud?.toString(), //Arreglar este
+                    longitud: items.longitud?.toString(), //Arreglar este
                     frecuencia: items.frecuencia?.toString(),
                     peso: items.tag_peso?.toString()
                     // Agregar campos restantes, y arreglar datos adicionales
                 };
                 setEquipmentData(asset);
-            }catch (err){
+            } catch (err) {
                 setError("Error al cargar activo")
             } finally {
                 setLoading(false);
@@ -158,11 +160,11 @@ const Asset: React.FC = () => {
         { key: 'estado_menor', label: 'Estado', sortable: true },
         { key: 'observacion', label: 'Observaciones', sortable: true },
         { key: 'encargado', label: 'Encargado', sortable: true },
-        { 
-            key: 'ocurrencia_evento', 
-            label: 'Modificado en', 
+        {
+            key: 'ocurrencia_evento',
+            label: 'Modificado en',
             sortable: true,
-            customRender: (value) => formatTimestamp(value) 
+            customRender: (value) => formatTimestamp(value)
         }
     ];
 
@@ -184,7 +186,19 @@ const Asset: React.FC = () => {
         setFilteredData(sortedData);
     };
     // Early returns for loading/error/null
-    if (loading) return <p className="mt-20 text-center">Cargando activo...</p>;
+    if (loading) {
+        return (
+            <div className="">
+                <div className="top-0 left-0 justify-center shadow-md z-50 ">
+                    <TopBar_l />
+                </div>
+                <div className="bg-gray-100 border border-gray-300 rounded-2xl p-4 w-full max-w-sm mx-auto mt-20 shadow">
+                    <p className=" text-center">Cargando activo...</p>
+                </div>
+                
+            </div>
+        )
+    }
     if (error) return <p className="mt-20 text-center text-red-600">{error}</p>;
     if (!equipmentData) return <p className="mt-20 text-center">Activo no encontrado</p>;
 
@@ -197,8 +211,8 @@ const Asset: React.FC = () => {
 
                 {/* Encabezado con TAG */}
                 <div className="border-b border-gray-200 pb-4 mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800">TAG: {equipmentData.tag }</h1>
-                    <p className="text-gray-600 mt-1">{equipmentData.familia}</p>
+                    <h1 className="text-2xl font-bold text-gray-800">TAG: {equipmentData.tag}</h1>
+                    <p className="text-gray-600 mt-1">Familia: {equipmentData.familia}</p>
                 </div>
 
                 {/* Pestañas */}
@@ -254,6 +268,10 @@ const Asset: React.FC = () => {
                                     <label className="block text-sm font-medium text-gray-500">Modelo</label>
                                     <p className="mt-1 text-sm text-gray-900">{equipmentData.modelo}</p>
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-500">Latitud</label>
+                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.latitud}</p>
+                                </div>
                             </div>
                             <div className="space-y-4">
                                 <div>
@@ -279,6 +297,10 @@ const Asset: React.FC = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-500">Observaciones</label>
                                     <p className="mt-1 text-sm text-gray-900">{equipmentData.observaciones}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-500">Longitud</label>
+                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.longitud}</p>
                                 </div>
                             </div>
                         </div>
@@ -344,12 +366,12 @@ const Asset: React.FC = () => {
                     <span className="text-lg font-semibold text-black">Registros Historicos</span>
 
                 </div>
-                                    <button
-                        onClick={() => navigate(`/asset/${id}/register-event`)}
-                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition"
-                    >
-                        + Registrar Evento
-                    </button>
+                <button
+                    onClick={() => navigate(`/asset/${id}/register-event`)}
+                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition"
+                >
+                    + Registrar Evento
+                </button>
                 <div className="flex-grow border-t border-gray-600"></div>
             </div>
             <div className="relative container mx-auto px-4 py-8 mt-6">

@@ -7,7 +7,6 @@ import type { DataItem, ColumnConfig } from "../../components/ui/Table";
 import type { Asset, ApiResponse } from "../../services/assetService";
 import { getLatestAssets } from "../../services/assetService";
 
-
 const HomePage: React.FC = () => {
   const [searchValue, setSearchValue] = useState("");
   const [searchBy, setSearchBy] = useState("tag");
@@ -39,25 +38,25 @@ const HomePage: React.FC = () => {
 
   // Utility, consider moving to utility file (its also used in Asset.tsx)
   const formatTimestamp = (timestamp: string | number | Date | undefined | null) => {
-      if (!timestamp) return "-";
-      const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-      return date.toLocaleString("es-CL", { 
-          timeZone: "America/Santiago",  // Adjust to your time zone
-          year: "2-digit",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false
-      });
-  };  
+    if (!timestamp) return "-";
+    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+    return date.toLocaleString("es-CL", {
+      timeZone: "America/Santiago",  // Adjust to your time zone
+      year: "2-digit",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    });
+  };
 
   const tableColumns: ColumnConfig<Asset>[] = [
     { key: 'tag', label: 'TAG', sortable: true },
     { key: 'tag_marca', label: 'Marca', sortable: true },
     { key: 'tag_estado', label: 'Estado', sortable: true },
-    { key: 'codigo_nema', label : 'NEMA', sortable: true },
+    { key: 'codigo_nema', label: 'NEMA', sortable: true },
     { key: 'codigo_cen', label: 'CEN', sortable: true },
     { key: 'empresa', label: 'Empresa', sortable: true },
     { key: 'nombre_subestacion', label: 'Subestación', sortable: true },
@@ -65,31 +64,31 @@ const HomePage: React.FC = () => {
   ];
 
   // Simulación de datos
-useEffect(() => {
-  async function fetchData() {
-    try {
-      setLoading(true);
-      const { items, metadata } = await getLatestAssets(pageSize, page,
-        ["tag", "brand", "status", "company", "substation_name","nema", "cen", "d.modificado_en", ], 
-        {
-        status: filtroEstado,
-        substation_name: filtroSubestacion,
-        brand: filtroMarca,
-        from: filtroFechaDesde,
-        to: filtroFechaHasta
-        }
-      );
-      setData(items ?? []);
-      setFilteredData(items ?? []);
-      setMetaData(metadata);
-    } catch (err) {
-      setError("Error al cargar los activos");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const { items, metadata } = await getLatestAssets(pageSize, page,
+          ["tag", "brand", "status", "company", "substation_name", "nema", "cen", "d.modificado_en",],
+          {
+            status: filtroEstado,
+            substation_name: filtroSubestacion,
+            brand: filtroMarca,
+            from: filtroFechaDesde,
+            to: filtroFechaHasta
+          }
+        );
+        setData(items ?? []);
+        setFilteredData(items ?? []);
+        setMetaData(metadata);
+      } catch (err) {
+        setError("Error al cargar los activos");
+      } finally {
+        setLoading(false);
+      }
     }
-  }
-  fetchData();
-}, [page]);
+    fetchData();
+  }, [page]);
 
 
   // Funcion para navegar a asset/id
@@ -116,10 +115,10 @@ useEffect(() => {
   };
 
   // Filtrado de datos según búsqueda
-const handleSearch = async () => {
-  try {
-    setLoading(true);
-    setPage(1); // reset to first page when starting a new search
+  const handleSearch = async () => {
+    try {
+      setLoading(true);
+      setPage(1); // reset to first page when starting a new search
 
       const filterParams: Record<string, any> = {
         status: filtroEstado,
@@ -128,49 +127,49 @@ const handleSearch = async () => {
         from: filtroFechaDesde,
         to: filtroFechaHasta
       };
-    
+
       // Add main search bar filter dynamically
       if (searchValue) {
         filterParams[searchBy] = searchValue;
       }
 
-    const { items, metadata } = await getLatestAssets(pageSize, 1, 
-      ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "nema", "cen"],
-      filterParams
-    );
+      const { items, metadata } = await getLatestAssets(pageSize, 1,
+        ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "nema", "cen"],
+        filterParams
+      );
 
-    setData(items ?? []);
-    setFilteredData(items ?? []); // you could drop filteredData and just use data
-    setMetaData(metadata);
-  } catch (err) {
-    setError("Error al buscar activos");
-  } finally {
-    setLoading(false);
-  }
-};
+      setData(items ?? []);
+      setFilteredData(items ?? []); // you could drop filteredData and just use data
+      setMetaData(metadata);
+    } catch (err) {
+      setError("Error al buscar activos");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   // Limpiar filtros
-const handleClearFilters = async () => {
-  setSearchValue("");
-  setFiltroEstado("");
-  setFiltroSubestacion("");
-  setFiltroFechaDesde("");
-  setFiltroFechaHasta("");
-  setPage(1); // reset page
+  const handleClearFilters = async () => {
+    setSearchValue("");
+    setFiltroEstado("");
+    setFiltroSubestacion("");
+    setFiltroFechaDesde("");
+    setFiltroFechaHasta("");
+    setPage(1); // reset page
 
-  try {
-    setLoading(true);
-    const { items, metadata } = await getLatestAssets(pageSize, 1);
-    setData(items ?? []);
-    setFilteredData(items ?? []);
-    setMetaData(metadata);
-  } catch (err) {
-    setError("Error al limpiar filtros");
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      const { items, metadata } = await getLatestAssets(pageSize, 1);
+      setData(items ?? []);
+      setFilteredData(items ?? []);
+      setMetaData(metadata);
+    } catch (err) {
+      setError("Error al limpiar filtros");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -184,10 +183,29 @@ const handleClearFilters = async () => {
       <div className="bg-gray-100 border border-gray-300 rounded-2xl p-4 w-full max-w-sm mx-auto mt-20 shadow">
         <p className="text-center text-gray-700 font-medium">Cargando activos...</p>
       </div>
-  )}
+    )
+  }
 
-  if (error) return <p className="text-center mt-20 text-red-600">{error}</p>;
-  if (!data || data.length === 0) return <p className="text-center mt-20">No hay activos disponibles</p>;
+  if (error) {
+    return (
+      <div className="">
+        <div className="top-0 left-0 justify-center shadow-md z-50 ">
+          <TopBar_l />
+        </div>
+        <p className="text-center mt-20 text-red-600">{error}</p>
+      </div>
+    )
+  }
+  if (!data || data.length === 0){
+    return (
+      <div className="">
+        <div className="top-0 left-0 justify-center shadow-md z-50 ">
+          <TopBar_l />
+        </div>
+      <p className="text-center mt-20">No hay activos disponibles</p>
+      </div>
+    )
+  }
 
   return (
     <div className="">

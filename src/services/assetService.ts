@@ -34,12 +34,15 @@ export interface AssetEvent extends DataItem {
 
 // Define the shape of an Asset (matching your backend’s JSON)
 export interface Asset extends DataItem {
-    tag: number;
+    tag: string;
     tag_marca: string;
     tag_estado: string;
     empresa: string;
     nombre_subestacion: string;
     modificado_en: string;
+    nema: string;
+    latitud: number;
+    longitud: number;
 }
 
 // Fetch latest modified assets

@@ -1,12 +1,19 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../../assets/chilquinta.png";
-import "../../pages/styles/style.css"
+import "../../pages/styles/style.css";
 
 const TopBar_l: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <header className="top-bar flex items-center px-4">
-      {/* Logo adaptable */}
-      <div className="flex-shrink-0 ">
+      {/* Logo clickable */}
+      <div
+        className="flex-shrink-0 cursor-pointer"
+        onClick={() => navigate("/home")}
+        title="Ir al inicio"
+      >
         <img
           src={logo}
           alt="Logo"
