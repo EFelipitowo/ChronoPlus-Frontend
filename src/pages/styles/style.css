@@ -33,9 +33,14 @@
   border-bottom: 1px solid black;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   padding-left: 10px;
-  
+}
+
+.top-bar-button {
+  background-color: #f7f7f7;
+}
+.top-bar-button:hover{
+  border-color: #f7f7f7;
 }
 
 .scroll-bar-map::-webkit-scrollbar{
