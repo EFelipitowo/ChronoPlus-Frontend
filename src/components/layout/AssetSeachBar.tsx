@@ -16,6 +16,12 @@ interface AssetSearchBarProps {
     setFiltroFechaDesde: (value: string) => void;
     filtroFechaHasta: string;
     setFiltroFechaHasta: (value: string) => void;
+    filtroMarca: string;
+    setFiltroMarca: (value: string) => void;
+    filtroNema: string;
+    setFiltroNema: (value: string) => void;
+    filtroCen: string;
+    setFiltroCen: (value: string) => void;
     handleSearch: () => void;
     handleClearFilters: () => void;
     handleKeyPress: (e: React.KeyboardEvent) => void;

@@ -33,28 +33,6 @@ export interface EquipmentData {
     tipo: string;
 }
 
-// Datos de ejemplo basados en la imagen
-//const equipmentData: EquipmentData = {
-//    tag: "52A3150A0001",
-//    codigoCEN: "N/A",
-//    codigoSAP: "10017M0",
-//    codigoNEMA: "SDAI",
-//    estado: "En Servicio, Normal (202)",
-//    marca: "ALSTOM",
-//    modelo: "TYPE.GL.313 F1/4031",
-//    serie: "9523-10-2040394/1",
-//    anoAntiguedad: 12, // 2024 - 2012
-//    familia: "INT ALSTOM TIPO GL 313 F1/4031 P",
-//    empresa: "Chilquinta",
-//    subestacion: "San Antonio",
-//    observaciones: "Normal",
-//    tensionCod: "170 Kv",
-//    corriente: "3150 A",
-//    anoFabricacion: 2012,
-//    bil: "750 KV",
-//    tipo: "Interruptor"
-//};
-
 
 const formatTimestamp = (timestamp: string | number | Date | undefined | null) => {
     if (!timestamp) return "-";
@@ -72,7 +50,7 @@ const formatTimestamp = (timestamp: string | number | Date | undefined | null) =
 };
 
 
-const Asset: React.FC = () => {
+const AssetPage: React.FC = () => {
     const { id } = useParams<string>();
 
     const [equipmentData, setEquipmentData] = useState<EquipmentData | null>(null);
@@ -387,4 +365,4 @@ const Asset: React.FC = () => {
     );
 };
 
-export default Asset;
+export default AssetPage;

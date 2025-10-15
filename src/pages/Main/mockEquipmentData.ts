@@ -1,5 +1,5 @@
 // mockEquipmentData.ts
-import type { EquipmentData } from "../Asset/Asset";// ajusta la ruta según tu proyecto
+import type { EquipmentData } from "../Asset/AssetPage";// ajusta la ruta según tu proyecto
 
 export const mockEquipmentData: EquipmentData[] = [
     // Santiago

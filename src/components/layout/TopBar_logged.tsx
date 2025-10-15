@@ -44,7 +44,7 @@ const TopBar_l: React.FC = () => {
 
       {/* Botón de menú móvil */}
       <button
-        className="md:hidden text-gray-700 focus:outline-none"
+        className="md:hidden text-gray-700 focus:outline-none top-bar-button"
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         aria-label="Menú"
       >
@@ -66,16 +66,16 @@ const TopBar_l: React.FC = () => {
 
       {/* Menú móvil desplegable */}
       {mobileMenuOpen && (
-        <div className="absolute top-full right-4 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 z-50 md:hidden">
+        <div className="absolute top-full right-4 mt-2 w-48 top-bar-button shadow-lg rounded-lg py-2 z-50 md:hidden ">
           <button
             onClick={() => handleNavigation("/home")}
-            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-[#8B322C] font-medium"
+            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-[#8B322C] font-medium top-bar-button"
           >
             Página principal
           </button>
           <button
             onClick={() => handleNavigation("/map")}
-            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-[#8B322C] font-medium"
+            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-[#8B322C] font-medium top-bar-button"
           >
             Mapa
           </button>

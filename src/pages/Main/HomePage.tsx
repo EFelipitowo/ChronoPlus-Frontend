@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import "../styles/style.css"
 import TopBar_l from "../../components/layout/TopBar_logged";
 import Table from "../../components/ui/Table"; // Importa el componente Table
-import type { DataItem, ColumnConfig } from "../../components/ui/Table";
+import type { ColumnConfig } from "../../components/ui/Table";
 import type { Asset, ApiResponse } from "../../services/assetService";
 import { getLatestAssets } from "../../services/assetService";
 import AssetSearchBar from "../../components/layout/AssetSeachBar";
@@ -48,8 +48,8 @@ const HomePage: React.FC = () => {
   });
 
   // Utility, consider moving to utility file (its also used in Asset.tsx)
-  const formatTimestamp = (timestamp: string | number | Date | undefined | null) => {
-    if (!timestamp) return "-";
+  const formatTimestamp = (timestamp: string | number | Date | undefined | boolean | null) => {
+    if (!timestamp || typeof timestamp === "boolean") return "-";
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
     return date.toLocaleString("es-CL", {
       timeZone: "America/Santiago",  // Adjust to your time zone
@@ -91,7 +91,7 @@ const HomePage: React.FC = () => {
         to
       } = activeFiltersRef.current;
 
-      const filterParams: Record<string, any> = {
+      const filterParams: Record<string, string | undefined> = {
         status,
         substation_name,
         brand,
@@ -114,6 +114,7 @@ const HomePage: React.FC = () => {
       setFilteredData(items ?? []);
       setMetaData(metadata);
     } catch (err) {
+      console.error(err);
       setError("Error al cargar los activos");
     } finally {
       setLoading(false);
@@ -123,24 +124,24 @@ const HomePage: React.FC = () => {
   fetchData();
 }, [page]);
 
-
+  /*
   // Funcion para navegar a asset/id
   const handleRowClick = (id: string) => {
     navigate(`/asset/${id}`);
   };
-
+  */
+ 
   // Función para manejar el ordenamiento
   const handleSort = (field: string | number, direction: 'asc' | 'desc') => {
     setSortField(field);
     setSortDirection(direction);
 
     const sortedData = [...filteredData].sort((a, b) => {
-      if (a[field] < b[field]) {
-        return direction === 'asc' ? -1 : 1;
-      }
-      if (a[field] > b[field]) {
-        return direction === 'asc' ? 1 : -1;
-      }
+      const aVal = a[field as keyof Asset];
+      const bVal = b[field as keyof Asset];
+      if (aVal == null || bVal == null) return 0;
+      if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return direction === 'asc' ? 1 : -1;
       return 0;
     });
 
@@ -164,7 +165,7 @@ const HomePage: React.FC = () => {
       to: filtroFechaHasta
     };
 
-    const filterParams: Record<string, any> = {
+    const filterParams: Record<string, string | undefined> = {
       status: filtroEstado,
       substation_name: filtroSubestacion,
       brand: filtroMarca,
@@ -185,6 +186,7 @@ const HomePage: React.FC = () => {
     setFilteredData(items ?? []);
     setMetaData(metadata);
   } catch (err) {
+    console.error(err);
     setError("Error al buscar activos");
   } finally {
     setLoading(false);
@@ -218,6 +220,7 @@ const HomePage: React.FC = () => {
       setFilteredData(items ?? []);
       setMetaData(metadata);
     } catch (err) {
+      console.error(err);
       setError("Error al limpiar filtros");
     } finally {
       setLoading(false);
@@ -240,6 +243,12 @@ const HomePage: React.FC = () => {
         <div className="relative container mx-auto px-4 py-10 mt-16 ">
         {/* Panel de búsqueda */}
         <AssetSearchBar
+          filtroMarca={filtroMarca}
+          setFiltroMarca={setFiltroMarca}
+          filtroNema={filtroNema}
+          setFiltroNema={setFiltroNema}
+          filtroCen={filtroCen}
+          setFiltroCen={setFiltroCen}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           searchBy={searchBy}
@@ -283,6 +292,12 @@ const HomePage: React.FC = () => {
         <div className="relative container mx-auto px-4 py-10 mt-16 ">
         {/* Panel de búsqueda */}
         <AssetSearchBar
+          filtroMarca={filtroMarca}
+          setFiltroMarca={setFiltroMarca}
+          filtroNema={filtroNema}
+          setFiltroNema={setFiltroNema}
+          filtroCen={filtroCen}
+          setFiltroCen={setFiltroCen}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           searchBy={searchBy}
@@ -336,6 +351,12 @@ const HomePage: React.FC = () => {
       <div className="relative container mx-auto px-4 py-10 mt-16 ">
         {/* Panel de búsqueda */}
         <AssetSearchBar
+          filtroMarca={filtroMarca}
+          setFiltroMarca={setFiltroMarca}
+          filtroNema={filtroNema}
+          setFiltroNema={setFiltroNema}
+          filtroCen={filtroCen}
+          setFiltroCen={setFiltroCen}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           searchBy={searchBy}

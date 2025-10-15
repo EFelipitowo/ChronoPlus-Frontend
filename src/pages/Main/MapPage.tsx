@@ -10,6 +10,7 @@ const MapPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+
     useEffect(() => {
         async function fetchAssets() {
             try {
@@ -43,6 +44,7 @@ const MapPage: React.FC = () => {
             longitud: a.longitud,
             subestacion: a.nombre_subestacion,
             empresa: a.empresa,
+            estado: a.tag_estado
         }));
 
     return (
