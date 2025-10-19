@@ -344,7 +344,7 @@ const FormAsset: React.FC = () => {
                 <div className="top-0 left-0 justify-center shadow-md z-50 ">
                     <TopBar_l />
                 </div>
-                <div className="pt-16 container mx-auto px-4 py-8">
+                <div className="pt-16 container mx-auto px-4 py-8 mt-8">
                     <div className="max-w-4xl mx-auto">
                         <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
                             <p className="text-lg">Cargando datos...</p>
