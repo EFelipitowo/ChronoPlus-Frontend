@@ -3,48 +3,59 @@ import type { DataItem } from "../components/ui/Table";
 
 
 export interface ApiResponse<T> {
-    items: T[];
-    metadata: {
-        total: number;
-        page: number;
-        pageSize: number;
-    };
+  items: T[];
+  metadata: {
+    total: number;
+    page: number;
+    pageSize: number;
+  };
 }
 
-export interface ApiSingleResponse<T>{
-    items: T,
-    metadata:{
-        total: number;
-        page: number;
-        pageSize: number;
-    };
+export interface ApiSingleResponse<T> {
+  items: T,
+  metadata: {
+    total: number;
+    page: number;
+    pageSize: number;
+  };
 }
 
 export interface AssetEvent extends DataItem {
-    tag: string;
-    id_evento: string;
-    estado_menor: string;
-    descripcion: string;
-    empresa: string;
-    subestacion: string;
-    encargado: string ;
-    observacion: string;
-    ocurrencia_evento: string;
+  tag: string;
+  id_evento: string;
+  estado_menor: string;
+  descripcion: string;
+  empresa: string;
+  subestacion: string;
+  encargado: string;
+  observacion: string;
+  ocurrencia_evento: string;
 }
 
 // Define the shape of an Asset (matching your backend’s JSON)
 export interface Asset extends DataItem {
-    tag: string;
-    tag_marca: string;
-    tag_estado: string;
-    empresa: string;
-    nombre_subestacion: string;
-    modificado_en: string;
-    nema: string;
-    latitud: number;
-    longitud: number;
+  tag: string;
+  tag_marca: string;
+  tag_estado: string;
+  empresa: string;
+  nombre_subestacion: string;
+  modificado_en: string;
+  nema: string;
+  latitud: number;
+  longitud: number;
 }
 
+export interface AssetFile {
+  id: string;
+  nombre: string;
+  tipo: string;
+  fechaSubida: string; // timestamp
+  url: string; // URL para abrir o descargar
+}
+
+export function getAssetFiles(id: string){
+  return {"TAG":id}
+}
 // Fetch latest modified assets
 // Fetch assets with pagination + filters
 export function getLatestAssets(
@@ -77,11 +88,11 @@ export function getLatestAssets(
 
 
 // Obtener activo segun su ID (tag)
-export function getAssetData(id : string): Promise<ApiSingleResponse<Asset>> {
-    return apiFetch<ApiSingleResponse<Asset>>(`/assets/${id}`);
+export function getAssetData(id: string): Promise<ApiSingleResponse<Asset>> {
+  return apiFetch<ApiSingleResponse<Asset>>(`/assets/${id}`);
 }
 
 // Obtener eventos de un activo segun si ID (tag)
 export function getAssetEvents(id: string, page: number = 1, pageSize: number = 20): Promise<ApiResponse<AssetEvent>> {
-    return apiFetch<ApiResponse<AssetEvent>>(`/assets/${id}/events?page=${page}&pageSize=${pageSize}`);
+  return apiFetch<ApiResponse<AssetEvent>>(`/assets/${id}/events?page=${page}&pageSize=${pageSize}`);
 }

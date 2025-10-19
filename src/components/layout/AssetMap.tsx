@@ -1,10 +1,11 @@
 import "../../pages/styles/style.css"
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from "react-router-dom";
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { assetsToGeoJSON } from '../../utils/geojson';
 import { haversineDistance } from "../../utils/distance";
+import { debounce } from "../../utils/debounce";
 
 export interface MapAsset {
     tag: string;
@@ -24,6 +25,8 @@ declare global {
         openAsset?: (tag: string) => void;
     }
 }
+
+
 
 const AssetMap: React.FC<AssetMapProps> = ({ assets }) => {
     const mapContainer = useRef<HTMLDivElement>(null);
@@ -72,6 +75,11 @@ const AssetMap: React.FC<AssetMapProps> = ({ assets }) => {
             setVisibleAssets([]);
         }
     }, [assets]); // ✅ Depende de `assets`
+
+    const debouncedUpdateVisibleAssets = useMemo(
+        () => debounce(updateVisibleAssets, 250), // actualiza cada 250 ms máximo
+        [updateVisibleAssets]
+    );
 
     useEffect(() => {
         if (!mapContainer.current) return;
@@ -269,15 +277,15 @@ const AssetMap: React.FC<AssetMapProps> = ({ assets }) => {
             map.current!.on('idle', onIdleOnce);
 
             // ✅ 2. Escuchar cambios posteriores
-            map.current!.on('moveend', handleUpdate);
-            map.current!.on('zoomend', handleUpdate);
+            map.current!.on('moveend', debouncedUpdateVisibleAssets);
+            map.current!.on('zoomend', debouncedUpdateVisibleAssets);
         });
 
         return () => {
             if (map.current) {
                 // ✅ Limpiar listeners para evitar memory leaks
-                map.current.off('moveend', updateVisibleAssets);
-                map.current.off('zoomend', updateVisibleAssets);
+                map.current.off('moveend', debouncedUpdateVisibleAssets);
+                map.current.off('zoomend', debouncedUpdateVisibleAssets);
                 map.current.remove();
             }
         };
@@ -286,8 +294,8 @@ const AssetMap: React.FC<AssetMapProps> = ({ assets }) => {
     return (
         <div className="flex flex-col sm:flex-row w-full h-[500px] sm:h-[600px] rounded-xl shadow-md border-2 border-black">
             {/* Panel lateral */}
-            <div className="w-full sm:w-64 bg-white p-4 overflow-y-auto shadow-md">
-                <h3 className="font-bold text-lg mb-3">Activos en vista</h3>
+            <div className="w-full sm:w-64 bg-white p-4 overflow-y-auto shadow-md rounded-xl">
+                <h3 className="font-bold text-lg mb-3">Activos en vista {visibleAssets.length > 0 && ` (${visibleAssets.length})`}</h3>
                 {visibleAssets.length === 0 ? (
                     <p className="text-gray-500 text-sm">No hay activos visibles.</p>
                 ) : (

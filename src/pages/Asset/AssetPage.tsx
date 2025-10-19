@@ -4,7 +4,7 @@ import "../../pages/styles/style.css"
 import TopBar_l from '../../components/layout/TopBar_logged';
 import Table from '../../components/ui/Table';
 import type { DataItem, ColumnConfig } from "../../components/ui/Table";
-import { getAssetData, getAssetEvents } from '../../services/assetService';
+import { getAssetData, getAssetEvents, getAssetFiles } from '../../services/assetService';
 import type { ApiSingleResponse, Asset, AssetEvent } from '../../services/assetService';
 
 // Definimos los tipos TypeScript para nuestros datos
@@ -31,6 +31,14 @@ export interface EquipmentData {
     anoFabricacion: number;
     bil: string;
     tipo: string;
+}
+
+interface AssetFile extends DataItem{
+    id: string;
+    nombre: string;
+    tipo: string;
+    fechaSubida: string; // timestamp
+    url: string; // URL para abrir o descargar
 }
 
 
@@ -67,6 +75,63 @@ const AssetPage: React.FC = () => {
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
+
+    const [files, setFiles] = useState<AssetFile[]>([]);
+
+    useEffect(() => {
+        async function fetchAssetFiles() {
+            if (!id) return;
+            try {
+                const { items, metadata } = await getAssetFiles(id);
+                setFiles(response.items || []);
+            } catch (err) {
+                console.error("Error fetching asset files", err);
+            }
+        }
+        fetchAssetFiles();
+    }, [id]);
+
+
+    const fileColumns: ColumnConfig<AssetFile>[] = [
+    {
+            key: 'nombre',
+            label: 'Nombre de archivo',
+            sortable: true,
+            customRender: (value, row) => (
+                <a
+                    href={row.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                >
+                    {value}
+                </a>
+            )
+        },
+        {
+            key: 'tipo',
+            label: 'Tipo de archivo',
+            sortable: true,
+        },
+        {
+            key: 'fechaSubida',
+            label: 'Fecha de subida',
+            sortable: true,
+            customRender: (value) => formatTimestamp(value)
+        },
+        {
+            key: 'download',
+            label: 'Descargar',
+            customRender: (_, row) => (
+                <button
+                    onClick={() => window.open(row.url, '_blank')}
+                    className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                >
+                    Descargar
+                </button>
+            )
+        }
+    ];
 
     useEffect(() => {
         async function fetchAssetEvents() {
@@ -107,8 +172,8 @@ const AssetPage: React.FC = () => {
                     anoFabricacion: Number(items.tag_annofab) || 0,
                     bil: items.tag_bil?.toString() || "N/A",
                     tipo: items.tag_tipo?.toString() || "N/A",
-                    latitud: items.latitud?.toString(), //Arreglar este
-                    longitud: items.longitud?.toString(), //Arreglar este
+                    latitud: items.latitud, //Arreglar este
+                    longitud: items.longitud,//Arreglar este
                     frecuencia: items.frecuencia?.toString(),
                     peso: items.tag_peso?.toString()
                     // Agregar campos restantes, y arreglar datos adicionales
@@ -116,6 +181,7 @@ const AssetPage: React.FC = () => {
                 setEquipmentData(asset);
             } catch (err) {
                 setError("Error al cargar activo")
+                console.log(err)
             } finally {
                 setLoading(false);
             }
@@ -213,6 +279,12 @@ const AssetPage: React.FC = () => {
                             onClick={() => setActiveTab(3)}
                         >
                             Datos Adicionales
+                        </button>
+                        <button
+                            className={`py-2 px-4 text-sm tab-button ${activeTab === 4 ? 'active' : ''}`}
+                            onClick={() => setActiveTab(4)}
+                        >
+                            Archivos
                         </button>
                     </div>
                 </div>
@@ -335,6 +407,29 @@ const AssetPage: React.FC = () => {
                             </div>
                         </div>
                     )*/}
+
+                    {activeTab === 4 && (
+    <div className="mt-4">
+        {files.length === 0 ? (
+            <p className="text-gray-600 text-center">No hay archivos asociados a este activo.</p>
+        ) : (
+            <Table<AssetFile>
+                data={files}
+                columns={fileColumns}
+                onSort={(field, direction) => {
+                    const sorted = [...files].sort((a, b) => {
+                        if (a[field]! < b[field]!) return direction === 'asc' ? -1 : 1;
+                        if (a[field]! > b[field]!) return direction === 'asc' ? 1 : -1;
+                        return 0;
+                    });
+                    setFiles(sorted);
+                }}
+                sortField={sortField} 
+                sortDirection={sortDirection}
+            />
+        )}
+    </div>
+)}
                 </div>
 
             </div>

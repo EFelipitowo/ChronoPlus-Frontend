@@ -337,7 +337,45 @@ const HomePage: React.FC = () => {
         <div className="top-0 left-0 justify-center shadow-md z-50 ">
           <TopBar_l />
         </div>
-        <p className="text-center mt-20">No hay activos disponibles</p>
+        <div className="relative container mx-auto px-4 py-10 mt-16 ">
+        {/* Panel de búsqueda */}
+        <AssetSearchBar
+          filtroMarca={filtroMarca}
+          setFiltroMarca={setFiltroMarca}
+          filtroNema={filtroNema}
+          setFiltroNema={setFiltroNema}
+          filtroCen={filtroCen}
+          setFiltroCen={setFiltroCen}
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          searchBy={searchBy}
+          setSearchBy={setSearchBy}
+          showAdvanced={showAdvanced}
+          setShowAdvanced={setShowAdvanced}
+          filtroEstado={filtroEstado}
+          setFiltroEstado={setFiltroEstado}
+          filtroSubestacion={filtroSubestacion}
+          setFiltroSubestacion={setFiltroSubestacion}
+          filtroFechaDesde={filtroFechaDesde}
+          setFiltroFechaDesde={setFiltroFechaDesde}
+          filtroFechaHasta={filtroFechaHasta}
+          setFiltroFechaHasta={setFiltroFechaHasta}
+          handleSearch={handleSearch}
+          handleClearFilters={handleClearFilters}
+          handleKeyPress={handleKeyPress}
+        />
+        {/* Separador */}
+        <div className="flex items-center mb-8 ">
+          <div className="flex-grow border-t border-gray-600"></div>
+          <div className="bg-white px-4 rounded-2xl border-gray-600">
+            <span className="text-lg font-semibold text-gray-700">Resultados Búsqueda</span>
+          </div>
+          <div className="flex-grow border-t border-gray-600"></div>
+        </div>
+</div>
+        <div className="bg-gray-100 border border-gray-300 rounded-2xl p-4 w-full max-w-sm mx-auto mt-30 shadow">
+          <p className="text-center text-gray-700 font-medium">No hay activos disponibles</p>
+        </div>
       </div>
     )
   }
