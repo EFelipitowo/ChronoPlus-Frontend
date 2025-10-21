@@ -4,7 +4,7 @@ import "../../pages/styles/style.css"
 import TopBar_l from '../../components/layout/TopBar_logged';
 import Table from '../../components/ui/Table';
 import type { DataItem, ColumnConfig } from "../../components/ui/Table";
-import { getAssetData, getAssetEvents, getAssetFiles } from '../../services/assetService';
+import { getAssetData, getAssetEvents, getAssetFiles, downloadAssetFile } from '../../services/assetService';
 import type { ApiSingleResponse, Asset, AssetEvent } from '../../services/assetService';
 
 // Definimos los tipos TypeScript para nuestros datos
@@ -36,8 +36,8 @@ export interface EquipmentData {
 interface AssetFile extends DataItem{
     id: string;
     nombre: string;
-    tipo: string;
-    fechaSubida: string; // timestamp
+    tipo_archivo: string;
+    subido_en: string; // timestamp
     url: string; // URL para abrir o descargar
 }
 
@@ -83,7 +83,7 @@ const AssetPage: React.FC = () => {
             if (!id) return;
             try {
                 const { items, metadata } = await getAssetFiles(id);
-                setFiles(response.items || []);
+                setFiles(items || []);
             } catch (err) {
                 console.error("Error fetching asset files", err);
             }
@@ -109,28 +109,45 @@ const AssetPage: React.FC = () => {
             )
         },
         {
-            key: 'tipo',
+            key: 'tipo_archivo',
             label: 'Tipo de archivo',
             sortable: true,
         },
         {
-            key: 'fechaSubida',
+            key: 'subido_en',
             label: 'Fecha de subida',
             sortable: true,
             customRender: (value) => formatTimestamp(value)
         },
         {
-            key: 'download',
-            label: 'Descargar',
-            customRender: (_, row) => (
-                <button
-                    onClick={() => window.open(row.url, '_blank')}
-                    className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
-                >
-                    Descargar
-                </button>
-            )
+          key: 'download',
+          label: 'Descargar',
+          customRender: (_, row) => (
+            <button
+              onClick={async () => {
+                try {
+                  const { blob, filename } = await downloadAssetFile(row.id); // or row.file_id
+                
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = filename;
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                  window.URL.revokeObjectURL(url);
+                } catch (err) {
+                  console.error('Error al descargar el archivo:', err);
+                  alert('Hubo un error al descargar el archivo.');
+                }
+              }}
+              className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+            >
+              Descargar
+            </button>
+          )
         }
+
     ];
 
     useEffect(() => {

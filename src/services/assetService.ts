@@ -50,12 +50,52 @@ export interface AssetFile {
   nombre: string;
   tipo: string;
   fechaSubida: string; // timestamp
-  url: string; // URL para abrir o descargar
+  gcs_path: string; // URL para abrir o descargar
 }
 
-export function getAssetFiles(id: string){
-  return {"TAG":id}
+export function getAssetFiles(id: string): Promise<ApiResponse<AssetFile>> {
+  const params = new URLSearchParams({
+    sort: "fechaSubida",
+    order: "desc",
+  });
+  return apiFetch<ApiResponse<AssetFile>>(`/assets/${id}/documents`);
 }
+
+export async function downloadAssetFile(fileId: string): Promise<{ blob: Blob; filename: string }> {
+  const response = await apiFetch(`/documents/${fileId}/download`, {
+    method: "GET",
+    rawResponse: true // get Response to access headers
+  });
+
+  // 👇 Log all headers to inspect what the backend actually sends
+  console.log("Response headers:", Array.from(response.headers.entries()));
+
+  const disposition = response.headers.get("Content-Disposition");
+  console.log("Content-Disposition:", disposition); // 👈 specifically check this one
+
+  let filename = "archivo";
+
+  if (disposition) {
+    // Try RFC 5987 (filename*="UTF-8''...")
+    const utf8FilenameRegex = /filename\*\s*=\s*UTF-8''([^;]+)/i;
+    const asciiFilenameRegex = /filename\s*=\s*["']?([^;"']+)["']?/i;
+
+    const utf8Match = utf8FilenameRegex.exec(disposition);
+    const asciiMatch = asciiFilenameRegex.exec(disposition);
+
+    if (utf8Match) {
+      filename = decodeURIComponent(utf8Match[1]);
+    } else if (asciiMatch) {
+      filename = asciiMatch[1];
+    }
+  }
+
+  const blob = await response.blob();
+  return { blob, filename };
+}
+
+
+
 // Fetch latest modified assets
 // Fetch assets with pagination + filters
 export function getLatestAssets(
