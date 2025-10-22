@@ -3,7 +3,7 @@ import "../styles/style.css";
 import TopBar_l from "../../components/layout/TopBar_logged";
 import AssetMap from "../../components/layout/AssetMap";
 import MapSearchBar from "../../components/layout/MapSearchBar";
-import { getLatestAssets } from "../../services/assetService";
+import { getAllAssets, getLatestAssets } from "../../services/assetService";
 import type { Asset } from "../../services/assetService";
 
 const MapPage: React.FC = () => {
@@ -24,7 +24,7 @@ const MapPage: React.FC = () => {
         async function fetchAssets() {
             try {
                 setLoading(true);
-                const { items } = await getLatestAssets(7000, 1, [
+                const { items } = await getAllAssets([
                     "tag",
                     "latitud",
                     "longitud",

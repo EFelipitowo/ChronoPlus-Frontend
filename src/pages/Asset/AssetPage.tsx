@@ -120,32 +120,37 @@ const AssetPage: React.FC = () => {
             customRender: (value) => formatTimestamp(value)
         },
         {
-          key: 'download',
-          label: 'Descargar',
-          customRender: (_, row) => (
-            <button
-              onClick={async () => {
-                try {
-                  const { blob, filename } = await downloadAssetFile(row.id); // or row.file_id
-                
-                  const url = window.URL.createObjectURL(blob);
-                  const link = document.createElement('a');
-                  link.href = url;
-                  link.download = filename;
-                  document.body.appendChild(link);
-                  link.click();
-                  link.remove();
-                  window.URL.revokeObjectURL(url);
-                } catch (err) {
-                  console.error('Error al descargar el archivo:', err);
-                  alert('Hubo un error al descargar el archivo.');
-                }
-              }}
-              className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
-            >
-              Descargar
-            </button>
-          )
+            key: 'download',
+            label: 'Acciones',
+            customRender: (_, row) => (
+            <div className="flex gap-2">
+                <button
+                    onClick={async () => {
+                    try {
+                        const { blob, filename } = await downloadAssetFile(row.id); // or row.file_id
+
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                        window.URL.revokeObjectURL(url);
+                    } catch (err) {
+                        console.error('Error al descargar el archivo:', err);
+                        alert('Hubo un error al descargar el archivo.');
+                    }
+                    }}
+                    className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                >
+                    Descargar
+                </button>
+                <button>
+                    X
+                </button>
+            </div>
+            )
         }
 
     ];

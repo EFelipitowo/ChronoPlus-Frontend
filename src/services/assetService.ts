@@ -1,4 +1,4 @@
-import { apiFetch } from "./api";
+import { apiFetch, apiFetchRaw } from "./api";
 import type { DataItem } from "../components/ui/Table";
 
 
@@ -62,9 +62,8 @@ export function getAssetFiles(id: string): Promise<ApiResponse<AssetFile>> {
 }
 
 export async function downloadAssetFile(fileId: string): Promise<{ blob: Blob; filename: string }> {
-  const response = await apiFetch(`/documents/${fileId}/download`, {
-    method: "GET",
-    rawResponse: true // get Response to access headers
+  const response = await apiFetchRaw(`/documents/${fileId}/download`, {
+    method: "GET"
   });
 
   // 👇 Log all headers to inspect what the backend actually sends
@@ -123,6 +122,13 @@ export function getLatestAssets(
   });
   console.log("Fetching assets with params:", params.toString());
   return apiFetch<ApiResponse<Asset>>(`/assets?${params.toString()}`);
+}
+
+// Get all assets (using total count dinamymically)
+export async function getAllAssets(fields: string[] = [], filterParams: Record<string, any> = {}) {
+  const countRes = await apiFetch<{ count: number }>("/assets/count");
+  const total = countRes.count;
+  return getLatestAssets(total, 1, fields, filterParams);
 }
 
 
