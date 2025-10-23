@@ -43,6 +43,7 @@ export interface Asset extends DataItem {
   nema: string;
   latitud: number;
   longitud: number;
+  json_datos: Record<string, any>; // parsed JSON object
 }
 
 export interface AssetFile {
@@ -134,9 +135,28 @@ export async function getAllAssets(fields: string[] = [], filterParams: Record<s
 
 
 // Obtener activo segun su ID (tag)
-export function getAssetData(id: string): Promise<ApiSingleResponse<Asset>> {
-  return apiFetch<ApiSingleResponse<Asset>>(`/assets/${id}`);
+export async function getAssetData(id: string): Promise<ApiSingleResponse<Asset>> {
+  const res = await apiFetch<ApiSingleResponse<Asset>>(`/assets/${id}`);
+
+  if (res.items) {
+    if (res.items.json_datos) {
+      try {
+        res.items.json_datos = JSON.parse(res.items.json_datos);
+      } catch (err) {
+        console.error("Failed to parse json_datos for asset", id, err);
+        res.items.json_datos = {};
+      }
+    } else {
+      res.items.json_datos = {};
+    }
+  } else {
+    // Optional: handle missing item gracefully
+    console.warn(`Asset with id ${id} not found`);
+  }
+
+  return res;
 }
+
 
 // Obtener eventos de un activo segun si ID (tag)
 export function getAssetEvents(id: string, page: number = 1, pageSize: number = 20): Promise<ApiResponse<AssetEvent>> {

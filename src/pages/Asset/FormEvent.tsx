@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import TopBar_l from "../../components/layout/TopBar_logged";
 import { getAssetData } from "../../services/assetService";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 interface TokenPayload {
     id: string;
@@ -25,11 +25,11 @@ interface AssetData {
 interface Empresa {
     //id: number;
     //nombre: string;
-    empresa : string
+    empresa: string
 }
 
 interface Subestacion {
-    nombre_subestacion : string;
+    nombre_subestacion: string;
 }
 
 interface Encargado {
@@ -38,55 +38,63 @@ interface Encargado {
 
 }
 
+const estadoMayorTextMap: Record<string, string> = {
+    "100": "100 En Proyecto",
+    "200": "200 En Servicio",
+    "300": "300 Fuera de Servicio",
+    "400": "400 Fin Vida Útil",
+    "500": "500 Tag Modificado"
+};
+
 // Definir los estados menores por cada estado mayor
 const estadosMenoresPorMayor: Record<string, Array<{ value: string, label: string }>> = {
 
     "100": [ // En Proyecto
-        { value: "102", label: "102 - En Cotización" },
-        { value: "103", label: "103 - En Diseño" },
-        { value: "104", label: "104 - En Fábrica" },
-        { value: "105", label: "105 - En Acopio, Reserva Proyecto" },
-        { value: "106", label: "106 - En Montaje" },
-        { value: "107", label: "107 - P.E.S." },
-        { value: "108", label: "108 - Declarado C.E.N." },
-        { value: "109", label: "109 - De Alta Contable" },
-        { value: "110", label: "110 - Tag Anulado" }
+        { value: "102 En Cotización", label: "102 - En Cotización" },
+        { value: "103 En Diseño", label: "103 - En Diseño" },
+        { value: "104 En Fábrica", label: "104 - En Fábrica" },
+        { value: "105 En Acopio, Reserva Proyecto", label: "105 - En Acopio, Reserva Proyecto" },
+        { value: "106 En Montaje", label: "106 - En Montaje" },
+        { value: "107 P.E.S.", label: "107 - P.E.S." },
+        { value: "108 Declarado C.E.N.", label: "108 - Declarado C.E.N." },
+        { value: "109 De Alta Contable", label: "109 - De Alta Contable" },
+        { value: "110 Tag Anulado", label: "110 - Tag Anulado" }
     ],
     "200": [ // En Servicio
-        { value: "201", label: "201 - Activo Heredado" },
-        { value: "202", label: "202 - Normal" },
-        { value: "203", label: "203 - Monitoreo" },
-        { value: "204", label: "204 - Reserva en Frío" },
-        { value: "205", label: "205 - Equipo Nuevo de Reemplazo" },
-        { value: "206", label: "206 - Nueva Incorporación" },
-        { value: "207", label: "207 - Rotación de Equipo" },
-        { value: "208", label: "208 - Equipo Repotenciado" },
-        { value: "209", label: "209 - Componente Dependiente" },
-        { value: "210", label: "210 - Reserva en Caliente" }
+        { value: "201 Activo Heredado", label: "201 - Activo Heredado" },
+        { value: "202 Normal", label: "202 - Normal" },
+        { value: "203 Monitoreo", label: "203 - Monitoreo" },
+        { value: "204 Reserva en Frío", label: "204 - Reserva en Frío" },
+        { value: "205 Equipo Nuevo de Reemplazo", label: "205 - Equipo Nuevo de Reemplazo" },
+        { value: "206 Nueva Incorporación", label: "206 - Nueva Incorporación" },
+        { value: "207 Rotación de Equipo", label: "207 - Rotación de Equipo" },
+        { value: "208 Equipo Repotenciado", label: "208 - Equipo Repotenciado" },
+        { value: "209 Componente Dependiente", label: "209 - Componente Dependiente" },
+        { value: "210 Reserva en Caliente", label: "210 - Reserva en Caliente" }
     ],
     "300": [ // Fuera de Servicio
-        { value: "301", label: "301 - En Falla" },
-        { value: "302", label: "302 - En Fábrica (xMant)" },
-        { value: "303", label: "303 - En Acopio Subestación (Pool)" },
-        { value: "304", label: "304 - Sin Repuestos" }
+        { value: "301 En Falla", label: "301 - En Falla" },
+        { value: "302 En Fábrica (xMant)", label: "302 - En Fábrica (xMant)" },
+        { value: "303 En Acopio Subestación (Pool)", label: "303 - En Acopio Subestación (Pool)" },
+        { value: "304 Sin Repuestos", label: "304 - Sin Repuestos" }
     ],
     "400": [ // Fin Vida Útil
-        { value: "401", label: "401 - Por Obsolecencia Tecnológica" },
-        { value: "402", label: "402 - Por Riesgo Ambiental" },
-        { value: "403", label: "403 - Chatarra" },
-        { value: "404", label: "404 - Reutilización de Componente" },
-        { value: "405", label: "405 - Dado de Baja Contable" }
+        { value: "401 Por Obsolecencia Tecnológica", label: "401 - Por Obsolecencia Tecnológica" },
+        { value: "402 Por Riesgo Ambiental", label: "402 - Por Riesgo Ambiental" },
+        { value: "403 Chatarra", label: "403 - Chatarra" },
+        { value: "404 Reutilización de Componente", label: "404 - Reutilización de Componente" },
+        { value: "405 Dado de Baja Contable", label: "405 - Dado de Baja Contable" }
     ],
     "500": [ // Tag Modificado
-        { value: "501", label: "501 - Tag Corregido" },
-        { value: "502", label: "502 - Tag Eliminado por Equipos Fin de Vida Útil" },
-        { value: "503", label: "503 - Tag Eliminado por Error de Creación" },
-        { value: "504", label: "504 - Tag Eliminado por Equipo Repotenciado" }
+        { value: "501 Tag Corregido", label: "501 - Tag Corregido" },
+        { value: "502 Tag Eliminado por Equipos Fin de Vida Útil", label: "502 - Tag Eliminado por Equipos Fin de Vida Útil" },
+        { value: "503 Tag Eliminado por Error de Creación", label: "503 - Tag Eliminado por Error de Creación" },
+        { value: "504 Tag Eliminado por Equipo Repotenciado", label: "504 - Tag Eliminado por Equipo Repotenciado" }
     ]
 };
 
 const FormAsset: React.FC = () => {
-    const { id } = useParams< string >();
+    const { id } = useParams<string>();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [loadingData, setLoadingData] = useState(true);
@@ -124,9 +132,9 @@ const FormAsset: React.FC = () => {
             // Obtener encargados
             const encargadosResponse = await fetch('http://localhost:3000/api/users', {
                 headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
-                        }
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
             });
             const encargadosData = await encargadosResponse.json();
             setEncargados(encargadosData);
@@ -134,9 +142,9 @@ const FormAsset: React.FC = () => {
             // Obtener empresas
             const empresasResponse = await fetch('http://localhost:3000/api/companies', {
                 headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
-                        }
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
             });
             const empresasData = await empresasResponse.json();
             setEmpresas(empresasData);
@@ -144,9 +152,9 @@ const FormAsset: React.FC = () => {
             // Obtener subestaciones
             const subestacionesResponse = await fetch('http://localhost:3000/api/substations', {
                 headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
-                        }
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
             });
             const subestacionesData = await subestacionesResponse.json();
             setSubestaciones(subestacionesData);
@@ -203,7 +211,7 @@ const FormAsset: React.FC = () => {
         } catch (err) {
             console.error("Invalid token:", err);
             navigate("/login");
-        }        
+        }
     }, [token, navigate]);
 
 
@@ -231,7 +239,7 @@ const FormAsset: React.FC = () => {
                 await fetchDataFromAPI();
 
 
-                const {items, metadata} = await getAssetData(id);
+                const { items, metadata } = await getAssetData(id);
                 // Simulación de datos del activo - reemplazar con llamada API real
                 //const mockData: AssetData = {
                 //    id: id || "1",
@@ -301,7 +309,7 @@ const FormAsset: React.FC = () => {
             // Preparar datos para enviar
             const dataToSend = {
                 tag: id,
-                status_top: formData.estadoMayor,
+                status_top: estadoMayorTextMap[formData.estadoMayor] || formData.estadoMayor,
                 status_bot: formData.estadoMenor,
                 company: formData.empresa,
                 substation: formData.subestacion,
@@ -316,7 +324,7 @@ const FormAsset: React.FC = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                    ,"Authorization": `Bearer ${token}`
+                    , "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify(dataToSend),
             });
@@ -402,7 +410,6 @@ const FormAsset: React.FC = () => {
                                 </select>
                             </div>
 
-                            {/* Estado Menor (dinámico) */}
                             {/* Estado Menor (dinámico) */}
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">

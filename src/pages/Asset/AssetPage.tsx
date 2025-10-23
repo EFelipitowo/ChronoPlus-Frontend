@@ -31,9 +31,10 @@ export interface EquipmentData {
     anoFabricacion: number;
     bil: string;
     tipo: string;
+    jsonData: Record<string, any> | string;
 }
 
-interface AssetFile extends DataItem{
+interface AssetFile extends DataItem {
     id: string;
     nombre: string;
     tipo_archivo: string;
@@ -93,7 +94,7 @@ const AssetPage: React.FC = () => {
 
 
     const fileColumns: ColumnConfig<AssetFile>[] = [
-    {
+        {
             key: 'nombre',
             label: 'Nombre de archivo',
             sortable: true,
@@ -123,33 +124,33 @@ const AssetPage: React.FC = () => {
             key: 'download',
             label: 'Acciones',
             customRender: (_, row) => (
-            <div className="flex gap-2">
-                <button
-                    onClick={async () => {
-                    try {
-                        const { blob, filename } = await downloadAssetFile(row.id); // or row.file_id
+                <div className="flex gap-2">
+                    <button
+                        onClick={async () => {
+                            try {
+                                const { blob, filename } = await downloadAssetFile(row.id); // or row.file_id
 
-                        const url = window.URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = filename;
-                        document.body.appendChild(link);
-                        link.click();
-                        link.remove();
-                        window.URL.revokeObjectURL(url);
-                    } catch (err) {
-                        console.error('Error al descargar el archivo:', err);
-                        alert('Hubo un error al descargar el archivo.');
-                    }
-                    }}
-                    className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
-                >
-                    Descargar
-                </button>
-                <button>
-                    X
-                </button>
-            </div>
+                                const url = window.URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.download = filename;
+                                document.body.appendChild(link);
+                                link.click();
+                                link.remove();
+                                window.URL.revokeObjectURL(url);
+                            } catch (err) {
+                                console.error('Error al descargar el archivo:', err);
+                                alert('Hubo un error al descargar el archivo.');
+                            }
+                        }}
+                        className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                    >
+                        Descargar
+                    </button>
+                    <button>
+                        X
+                    </button>
+                </div>
             )
         }
 
@@ -197,7 +198,8 @@ const AssetPage: React.FC = () => {
                     latitud: items.latitud, //Arreglar este
                     longitud: items.longitud,//Arreglar este
                     frecuencia: items.frecuencia?.toString(),
-                    peso: items.tag_peso?.toString()
+                    peso: items.tag_peso?.toString(),
+                    jsonData: items.json_datos // Agregar campos restantes, y arreglar datos adicionales 
                     // Agregar campos restantes, y arreglar datos adicionales
                 };
                 setEquipmentData(asset);
@@ -261,7 +263,7 @@ const AssetPage: React.FC = () => {
                 <div className="bg-gray-100 border border-gray-300 rounded-2xl p-4 w-full max-w-sm mx-auto mt-20 shadow">
                     <p className=" text-center">Cargando activo...</p>
                 </div>
-                
+
             </div>
         )
     }
@@ -431,27 +433,27 @@ const AssetPage: React.FC = () => {
                     )*/}
 
                     {activeTab === 4 && (
-    <div className="mt-4">
-        {files.length === 0 ? (
-            <p className="text-gray-600 text-center">No hay archivos asociados a este activo.</p>
-        ) : (
-            <Table<AssetFile>
-                data={files}
-                columns={fileColumns}
-                onSort={(field, direction) => {
-                    const sorted = [...files].sort((a, b) => {
-                        if (a[field]! < b[field]!) return direction === 'asc' ? -1 : 1;
-                        if (a[field]! > b[field]!) return direction === 'asc' ? 1 : -1;
-                        return 0;
-                    });
-                    setFiles(sorted);
-                }}
-                sortField={sortField} 
-                sortDirection={sortDirection}
-            />
-        )}
-    </div>
-)}
+                        <div className="mt-4">
+                            {files.length === 0 ? (
+                                <p className="text-gray-600 text-center">No hay archivos asociados a este activo.</p>
+                            ) : (
+                                <Table<AssetFile>
+                                    data={files}
+                                    columns={fileColumns}
+                                    onSort={(field, direction) => {
+                                        const sorted = [...files].sort((a, b) => {
+                                            if (a[field]! < b[field]!) return direction === 'asc' ? -1 : 1;
+                                            if (a[field]! > b[field]!) return direction === 'asc' ? 1 : -1;
+                                            return 0;
+                                        });
+                                        setFiles(sorted);
+                                    }}
+                                    sortField={sortField}
+                                    sortDirection={sortDirection}
+                                />
+                            )}
+                        </div>
+                    )}
                 </div>
 
             </div>

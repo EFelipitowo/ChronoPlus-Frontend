@@ -3,7 +3,7 @@ import '../../pages/styles/style.css'
 
 // Interface genérica para los datos
 export interface DataItem {
-  [key: string]: string | number | boolean | Date | undefined;
+  [key: string]: string | number | boolean | Date | Record<string, any> | undefined;
 }
 
 export interface ColumnConfig<T = DataItem> {
