@@ -5,7 +5,7 @@ import TopBar_l from "../../components/layout/TopBar_logged";
 import Table from "../../components/ui/Table"; // Importa el componente Table
 import type { ColumnConfig } from "../../components/ui/Table";
 import type { Asset, ApiResponse } from "../../services/assetService";
-import { getLatestAssets } from "../../services/assetService";
+import { getLatestAssets, generateExcelReport } from "../../services/assetService";
 import AssetSearchBar from "../../components/layout/AssetSeachBar";
 
 const HomePage: React.FC = () => {
@@ -36,6 +36,10 @@ const HomePage: React.FC = () => {
   const [page, setPage] = useState(1);
   const pageSize = 20;
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = "Buscador de Activos";
+  }, []);
 
   const activeFiltersRef = useRef({
     searchValue: "",
@@ -76,53 +80,53 @@ const HomePage: React.FC = () => {
 
   // Simulación de datos
   useEffect(() => {
-  async function fetchData() {
-    try {
-      setLoading(true);
+    async function fetchData() {
+      try {
+        setLoading(true);
 
-      // ✅ Usa los filtros del ref, no los estados directamente
-      const {
-        searchValue: currentSearchValue,
-        searchBy: currentSearchBy,
-        status,
-        substation_name,
-        brand,
-        from,
-        to
-      } = activeFiltersRef.current;
+        // ✅ Usa los filtros del ref, no los estados directamente
+        const {
+          searchValue: currentSearchValue,
+          searchBy: currentSearchBy,
+          status,
+          substation_name,
+          brand,
+          from,
+          to
+        } = activeFiltersRef.current;
 
-      const filterParams: Record<string, string | undefined> = {
-        status,
-        substation_name,
-        brand,
-        from,
-        to
-      };
+        const filterParams: Record<string, string | undefined> = {
+          status,
+          substation_name,
+          brand,
+          from,
+          to
+        };
 
-      if (currentSearchValue) {
-        filterParams[currentSearchBy] = currentSearchValue;
+        if (currentSearchValue) {
+          filterParams[currentSearchBy] = currentSearchValue;
+        }
+
+        const { items, metadata } = await getLatestAssets(
+          pageSize,
+          page,
+          ["tag", "brand", "status", "company", "substation_name", "nema", "cen", "d.modificado_en"],
+          filterParams
+        );
+
+        setData(items ?? []);
+        setFilteredData(items ?? []);
+        setMetaData(metadata);
+      } catch (err) {
+        console.error(err);
+        setError("Error al cargar los activos");
+      } finally {
+        setLoading(false);
       }
-
-      const { items, metadata } = await getLatestAssets(
-        pageSize,
-        page,
-        ["tag", "brand", "status", "company", "substation_name", "nema", "cen", "d.modificado_en"],
-        filterParams
-      );
-
-      setData(items ?? []);
-      setFilteredData(items ?? []);
-      setMetaData(metadata);
-    } catch (err) {
-      console.error(err);
-      setError("Error al cargar los activos");
-    } finally {
-      setLoading(false);
     }
-  }
 
-  fetchData();
-}, [page]);
+    fetchData();
+  }, [page]);
 
   /*
   // Funcion para navegar a asset/id
@@ -130,7 +134,7 @@ const HomePage: React.FC = () => {
     navigate(`/asset/${id}`);
   };
   */
- 
+
   // Función para manejar el ordenamiento
   const handleSort = (field: string | number, direction: 'asc' | 'desc') => {
     setSortField(field);
@@ -148,50 +152,86 @@ const HomePage: React.FC = () => {
     setFilteredData(sortedData);
   };
 
+  // Funcion para manejar la descarga del excel
+  const handleExportToExcel = async () => {
+    try {
+      // Usa los mismos filtros que usas en handleSearch
+      const filterParams: Record<string, string | undefined> = {
+        status: filtroEstado,
+        substation_name: filtroSubestacion,
+        brand: filtroMarca,
+        from: filtroFechaDesde,
+        to: filtroFechaHasta,
+        nema: filtroNema,
+        cen: filtroCen,
+      };
+
+      if (searchValue) {
+        filterParams[searchBy] = searchValue;
+      }
+
+      // Llama al servicio
+      const excelBlob = await generateExcelReport(filterParams);
+
+      // Descargar el archivo
+      const url = window.URL.createObjectURL(excelBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `activos_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error("Error al generar el Excel:", err);
+      alert("Error al generar el archivo Excel. Por favor, inténtelo nuevamente.");
+    }
+  };
+
   // Filtrado de datos según búsqueda
   const handleSearch = async () => {
-  try {
-    setLoading(true);
-    setPage(1);
+    try {
+      setLoading(true);
+      setPage(1);
 
-    // Actualiza el ref con los filtros actuales
-    activeFiltersRef.current = {
-      searchValue,
-      searchBy,
-      status: filtroEstado,
-      substation_name: filtroSubestacion,
-      brand: filtroMarca,
-      from: filtroFechaDesde,
-      to: filtroFechaHasta
-    };
+      // Actualiza el ref con los filtros actuales
+      activeFiltersRef.current = {
+        searchValue,
+        searchBy,
+        status: filtroEstado,
+        substation_name: filtroSubestacion,
+        brand: filtroMarca,
+        from: filtroFechaDesde,
+        to: filtroFechaHasta
+      };
 
-    const filterParams: Record<string, string | undefined> = {
-      status: filtroEstado,
-      substation_name: filtroSubestacion,
-      brand: filtroMarca,
-      from: filtroFechaDesde,
-      to: filtroFechaHasta
-    };
+      const filterParams: Record<string, string | undefined> = {
+        status: filtroEstado,
+        substation_name: filtroSubestacion,
+        brand: filtroMarca,
+        from: filtroFechaDesde,
+        to: filtroFechaHasta
+      };
 
-    if (searchValue) {
-      filterParams[searchBy] = searchValue;
+      if (searchValue) {
+        filterParams[searchBy] = searchValue;
+      }
+
+      const { items, metadata } = await getLatestAssets(pageSize, 1,
+        ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "nema", "cen"],
+        filterParams
+      );
+
+      setData(items ?? []);
+      setFilteredData(items ?? []);
+      setMetaData(metadata);
+    } catch (err) {
+      console.error(err);
+      setError("Error al buscar activos");
+    } finally {
+      setLoading(false);
     }
-
-    const { items, metadata } = await getLatestAssets(pageSize, 1,
-      ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "nema", "cen"],
-      filterParams
-    );
-
-    setData(items ?? []);
-    setFilteredData(items ?? []);
-    setMetaData(metadata);
-  } catch (err) {
-    console.error(err);
-    setError("Error al buscar activos");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
   // Limpiar filtros
@@ -204,13 +244,13 @@ const HomePage: React.FC = () => {
     setPage(1); // reset page
 
     activeFiltersRef.current = {
-    searchValue: "",
-    searchBy: "tag",
-    status: "",
-    substation_name: "",
-    brand: "",
-    from: "",
-    to: ""
+      searchValue: "",
+      searchBy: "tag",
+      status: "",
+      substation_name: "",
+      brand: "",
+      from: "",
+      to: ""
     };
 
     try {
@@ -241,41 +281,42 @@ const HomePage: React.FC = () => {
           <TopBar_l />
         </div>
         <div className="relative container mx-auto px-4 py-10 mt-16 ">
-        {/* Panel de búsqueda */}
-        <AssetSearchBar
-          filtroMarca={filtroMarca}
-          setFiltroMarca={setFiltroMarca}
-          filtroNema={filtroNema}
-          setFiltroNema={setFiltroNema}
-          filtroCen={filtroCen}
-          setFiltroCen={setFiltroCen}
-          searchValue={searchValue}
-          setSearchValue={setSearchValue}
-          searchBy={searchBy}
-          setSearchBy={setSearchBy}
-          showAdvanced={showAdvanced}
-          setShowAdvanced={setShowAdvanced}
-          filtroEstado={filtroEstado}
-          setFiltroEstado={setFiltroEstado}
-          filtroSubestacion={filtroSubestacion}
-          setFiltroSubestacion={setFiltroSubestacion}
-          filtroFechaDesde={filtroFechaDesde}
-          setFiltroFechaDesde={setFiltroFechaDesde}
-          filtroFechaHasta={filtroFechaHasta}
-          setFiltroFechaHasta={setFiltroFechaHasta}
-          handleSearch={handleSearch}
-          handleClearFilters={handleClearFilters}
-          handleKeyPress={handleKeyPress}
-        />
-        {/* Separador */}
-        <div className="flex items-center mb-8 ">
-          <div className="flex-grow border-t border-gray-600"></div>
-          <div className="bg-white px-4 rounded-2xl border-gray-600">
-            <span className="text-lg font-semibold text-gray-700">Resultados Búsqueda</span>
+          {/* Panel de búsqueda */}
+          <AssetSearchBar
+            filtroMarca={filtroMarca}
+            setFiltroMarca={setFiltroMarca}
+            filtroNema={filtroNema}
+            setFiltroNema={setFiltroNema}
+            filtroCen={filtroCen}
+            setFiltroCen={setFiltroCen}
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            searchBy={searchBy}
+            setSearchBy={setSearchBy}
+            showAdvanced={showAdvanced}
+            setShowAdvanced={setShowAdvanced}
+            filtroEstado={filtroEstado}
+            setFiltroEstado={setFiltroEstado}
+            filtroSubestacion={filtroSubestacion}
+            setFiltroSubestacion={setFiltroSubestacion}
+            filtroFechaDesde={filtroFechaDesde}
+            setFiltroFechaDesde={setFiltroFechaDesde}
+            filtroFechaHasta={filtroFechaHasta}
+            setFiltroFechaHasta={setFiltroFechaHasta}
+            handleSearch={handleSearch}
+            handleClearFilters={handleClearFilters}
+            handleKeyPress={handleKeyPress}
+            handleExportToExcel={handleExportToExcel}
+          />
+          {/* Separador */}
+          <div className="flex items-center mb-8 ">
+            <div className="flex-grow border-t border-gray-600"></div>
+            <div className="bg-white px-4 rounded-2xl border-gray-600">
+              <span className="text-lg font-semibold text-gray-700">Resultados Búsqueda</span>
+            </div>
+            <div className="flex-grow border-t border-gray-600"></div>
           </div>
-          <div className="flex-grow border-t border-gray-600"></div>
         </div>
-</div>
         <div className="bg-gray-100 border border-gray-300 rounded-2xl p-4 w-full max-w-sm mx-auto mt-30 shadow">
           <p className="text-center text-gray-700 font-medium">Cargando activos...</p>
         </div>
@@ -290,41 +331,42 @@ const HomePage: React.FC = () => {
           <TopBar_l />
         </div>
         <div className="relative container mx-auto px-4 py-10 mt-16 ">
-        {/* Panel de búsqueda */}
-        <AssetSearchBar
-          filtroMarca={filtroMarca}
-          setFiltroMarca={setFiltroMarca}
-          filtroNema={filtroNema}
-          setFiltroNema={setFiltroNema}
-          filtroCen={filtroCen}
-          setFiltroCen={setFiltroCen}
-          searchValue={searchValue}
-          setSearchValue={setSearchValue}
-          searchBy={searchBy}
-          setSearchBy={setSearchBy}
-          showAdvanced={showAdvanced}
-          setShowAdvanced={setShowAdvanced}
-          filtroEstado={filtroEstado}
-          setFiltroEstado={setFiltroEstado}
-          filtroSubestacion={filtroSubestacion}
-          setFiltroSubestacion={setFiltroSubestacion}
-          filtroFechaDesde={filtroFechaDesde}
-          setFiltroFechaDesde={setFiltroFechaDesde}
-          filtroFechaHasta={filtroFechaHasta}
-          setFiltroFechaHasta={setFiltroFechaHasta}
-          handleSearch={handleSearch}
-          handleClearFilters={handleClearFilters}
-          handleKeyPress={handleKeyPress}
-        />
-        {/* Separador */}
-        <div className="flex items-center mb-8 ">
-          <div className="flex-grow border-t border-gray-600"></div>
-          <div className="bg-white px-4 rounded-2xl border-gray-600">
-            <span className="text-lg font-semibold text-gray-700">Resultados Búsqueda</span>
+          {/* Panel de búsqueda */}
+          <AssetSearchBar
+            filtroMarca={filtroMarca}
+            setFiltroMarca={setFiltroMarca}
+            filtroNema={filtroNema}
+            setFiltroNema={setFiltroNema}
+            filtroCen={filtroCen}
+            setFiltroCen={setFiltroCen}
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            searchBy={searchBy}
+            setSearchBy={setSearchBy}
+            showAdvanced={showAdvanced}
+            setShowAdvanced={setShowAdvanced}
+            filtroEstado={filtroEstado}
+            setFiltroEstado={setFiltroEstado}
+            filtroSubestacion={filtroSubestacion}
+            setFiltroSubestacion={setFiltroSubestacion}
+            filtroFechaDesde={filtroFechaDesde}
+            setFiltroFechaDesde={setFiltroFechaDesde}
+            filtroFechaHasta={filtroFechaHasta}
+            setFiltroFechaHasta={setFiltroFechaHasta}
+            handleSearch={handleSearch}
+            handleClearFilters={handleClearFilters}
+            handleKeyPress={handleKeyPress}
+            handleExportToExcel={handleExportToExcel}
+          />
+          {/* Separador */}
+          <div className="flex items-center mb-8 ">
+            <div className="flex-grow border-t border-gray-600"></div>
+            <div className="bg-white px-4 rounded-2xl border-gray-600">
+              <span className="text-lg font-semibold text-gray-700">Resultados Búsqueda</span>
+            </div>
+            <div className="flex-grow border-t border-gray-600"></div>
           </div>
-          <div className="flex-grow border-t border-gray-600"></div>
         </div>
-</div>
         <div className="bg-gray-100 border border-gray-300 rounded-2xl p-4 w-full max-w-sm mx-auto mt-30 shadow">
           <p className="text-center  text-red-600">{error}</p>
         </div>
@@ -338,41 +380,42 @@ const HomePage: React.FC = () => {
           <TopBar_l />
         </div>
         <div className="relative container mx-auto px-4 py-10 mt-16 ">
-        {/* Panel de búsqueda */}
-        <AssetSearchBar
-          filtroMarca={filtroMarca}
-          setFiltroMarca={setFiltroMarca}
-          filtroNema={filtroNema}
-          setFiltroNema={setFiltroNema}
-          filtroCen={filtroCen}
-          setFiltroCen={setFiltroCen}
-          searchValue={searchValue}
-          setSearchValue={setSearchValue}
-          searchBy={searchBy}
-          setSearchBy={setSearchBy}
-          showAdvanced={showAdvanced}
-          setShowAdvanced={setShowAdvanced}
-          filtroEstado={filtroEstado}
-          setFiltroEstado={setFiltroEstado}
-          filtroSubestacion={filtroSubestacion}
-          setFiltroSubestacion={setFiltroSubestacion}
-          filtroFechaDesde={filtroFechaDesde}
-          setFiltroFechaDesde={setFiltroFechaDesde}
-          filtroFechaHasta={filtroFechaHasta}
-          setFiltroFechaHasta={setFiltroFechaHasta}
-          handleSearch={handleSearch}
-          handleClearFilters={handleClearFilters}
-          handleKeyPress={handleKeyPress}
-        />
-        {/* Separador */}
-        <div className="flex items-center mb-8 ">
-          <div className="flex-grow border-t border-gray-600"></div>
-          <div className="bg-white px-4 rounded-2xl border-gray-600">
-            <span className="text-lg font-semibold text-gray-700">Resultados Búsqueda</span>
+          {/* Panel de búsqueda */}
+          <AssetSearchBar
+            filtroMarca={filtroMarca}
+            setFiltroMarca={setFiltroMarca}
+            filtroNema={filtroNema}
+            setFiltroNema={setFiltroNema}
+            filtroCen={filtroCen}
+            setFiltroCen={setFiltroCen}
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            searchBy={searchBy}
+            setSearchBy={setSearchBy}
+            showAdvanced={showAdvanced}
+            setShowAdvanced={setShowAdvanced}
+            filtroEstado={filtroEstado}
+            setFiltroEstado={setFiltroEstado}
+            filtroSubestacion={filtroSubestacion}
+            setFiltroSubestacion={setFiltroSubestacion}
+            filtroFechaDesde={filtroFechaDesde}
+            setFiltroFechaDesde={setFiltroFechaDesde}
+            filtroFechaHasta={filtroFechaHasta}
+            setFiltroFechaHasta={setFiltroFechaHasta}
+            handleSearch={handleSearch}
+            handleClearFilters={handleClearFilters}
+            handleKeyPress={handleKeyPress}
+            handleExportToExcel={handleExportToExcel}
+          />
+          {/* Separador */}
+          <div className="flex items-center mb-8 ">
+            <div className="flex-grow border-t border-gray-600"></div>
+            <div className="bg-white px-4 rounded-2xl border-gray-600">
+              <span className="text-lg font-semibold text-gray-700">Resultados Búsqueda</span>
+            </div>
+            <div className="flex-grow border-t border-gray-600"></div>
           </div>
-          <div className="flex-grow border-t border-gray-600"></div>
         </div>
-</div>
         <div className="bg-gray-100 border border-gray-300 rounded-2xl p-4 w-full max-w-sm mx-auto mt-30 shadow">
           <p className="text-center text-gray-700 font-medium">No hay activos disponibles</p>
         </div>
@@ -412,6 +455,7 @@ const HomePage: React.FC = () => {
           handleSearch={handleSearch}
           handleClearFilters={handleClearFilters}
           handleKeyPress={handleKeyPress}
+          handleExportToExcel={handleExportToExcel}
         />
         {/* Separador */}
         <div className="flex items-center mb-8 ">
@@ -438,14 +482,14 @@ const HomePage: React.FC = () => {
         {/* Metadata info TENEMOS QUE ARREGLAR METADA EN LA API AHHH porque no viene metadata {...} si no que total, page, limit, items*/}
         {metadata && (
           <div className="mt-4 text-center">
-      {metadata.total > 0 ? (
-        <p className="text-sm text-white">
-          Mostrando {(page - 1) * pageSize + 1}–
-          {Math.min(page * pageSize, metadata.total)} de {metadata.total} activos
-        </p>
-      ) : (
-        <p className="text-sm text-white">No se encontraron activos</p>
-      )}
+            {metadata.total > 0 ? (
+              <p className="text-sm text-white">
+                Mostrando {(page - 1) * pageSize + 1}–
+                {Math.min(page * pageSize, metadata.total)} de {metadata.total} activos
+              </p>
+            ) : (
+              <p className="text-sm text-white">No se encontraron activos</p>
+            )}
 
             {/* Pagination buttons */}
             <div className="flex justify-center gap-4 mt-2">

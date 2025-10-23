@@ -79,3 +79,40 @@
   cursor: pointer;
 }
 
+.clean-button{
+  background-color: #fb2c36;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
+
+.clean-button:hover{
+  background-color: white!important;
+  color: #fb2c36;
+  cursor: pointer;
+  border-color: black; 
+  outline: none;
+}
+
+.clean-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.excel-button{
+  background-color: #0F9D58;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
+
+.excel-button:hover {
+  background-color: white!important;
+  color: #0F9D58;
+  cursor: pointer;
+  border-color: black; 
+  outline: none;
+}
+
+.excel-button:focus {
+  outline: none;
+  box-shadow: none;
+}

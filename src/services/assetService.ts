@@ -162,3 +162,26 @@ export async function getAssetData(id: string): Promise<ApiSingleResponse<Asset>
 export function getAssetEvents(id: string, page: number = 1, pageSize: number = 20): Promise<ApiResponse<AssetEvent>> {
   return apiFetch<ApiResponse<AssetEvent>>(`/assets/${id}/events?page=${page}&pageSize=${pageSize}`);
 }
+
+// Generar Excel con los mismos filtros que getLatestAssets en HomePage
+export async function generateExcelReport(filterParams: Record<string, any> = {}): Promise<Blob> {
+  const params = new URLSearchParams();
+
+  // Añadir filtros (solo si tienen valor)
+  Object.entries(filterParams).forEach(([key, value]) => {
+    if (value !== "" && value != null) {
+      params.append(key, String(value));
+    }
+  });
+
+  const response = await apiFetchRaw(`/assets/export-excel?${params.toString()}`, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error al generar el Excel: ${response.status} - ${errorText}`);
+  }
+
+  return await response.blob();
+}

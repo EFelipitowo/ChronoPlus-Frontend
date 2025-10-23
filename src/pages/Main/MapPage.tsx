@@ -19,6 +19,10 @@ const MapPage: React.FC = () => {
     const [filtroEstado, setFiltroEstado] = useState("");
     const [filtroSubestacion, setFiltroSubestacion] = useState("");
 
+    useEffect(() => {
+        document.title = "Mapa de Activos";
+    }, []);
+
     // Cargar activos
     useEffect(() => {
         async function fetchAssets() {

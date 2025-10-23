@@ -25,6 +25,7 @@ interface AssetSearchBarProps {
     handleSearch: () => void;
     handleClearFilters: () => void;
     handleKeyPress: (e: React.KeyboardEvent) => void;
+    handleExportToExcel: () => void;
 }
 
 const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
@@ -190,7 +191,13 @@ const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
                     <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3">
                         <button
                             onClick={handleClearFilters}
-                            className="px-4 py-2 border border-gray-300 text-red-500 rounded-lg hover:bg-gray-100 transition text-sm sm:text-base"
+                            className="px-4 py-2 excel-button  text-white rounded-lg transition text-sm sm:text-base"
+                        >
+                            Generar Excel
+                        </button>
+                        <button
+                            onClick={handleClearFilters}
+                            className="px-4 py-2 clean-button text-white rounded-lg transition text-sm sm:text-base"
                         >
                             Limpiar Filtros
                         </button>

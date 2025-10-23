@@ -155,6 +155,13 @@ const AssetPage: React.FC = () => {
         }
 
     ];
+    useEffect(() => {
+    if (equipmentData?.tag) {
+        document.title = `${equipmentData.tag} - Detalle del Activo`;
+    } else {
+        document.title = "Cargando activo...";
+    }
+}, [equipmentData]);
 
     useEffect(() => {
         async function fetchAssetEvents() {
@@ -417,20 +424,43 @@ const AssetPage: React.FC = () => {
                         </div>
                     )}
 
-                    {/*activeTab === 3 && (
+                    {activeTab === 3 && (
                         <div className="space-y-4">
-                            {equipmentData.datosExtra && Object.entries(equipmentData.datosExtra).map(([key, value]) => (
-                                <div key={key}>
-                                    <label className="block text-sm font-medium text-gray-500">{key}</label>
-                                    <p className="mt-1 text-sm text-gray-900">{value}</p>
-                                </div>
-                            ))}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-500">Coordenadas</label>
-                                <p className="mt-1 text-sm text-gray-900">{equipmentData.coordenadas || "No especificadas"}</p>
-                            </div>
+                            {(() => {
+                                // Si jsonData viene como string, intenta parsearlo
+                                let data: Record<string, any> = {};
+                                try {
+                                    data = typeof equipmentData.jsonData === "string"
+                                        ? JSON.parse(equipmentData.jsonData)
+                                        : equipmentData.jsonData || {};
+                                } catch (err) {
+                                    console.error("Error al parsear jsonData:", err);
+                                }
+
+                                const entries = Object.entries(data);
+                                if (entries.length === 0) {
+                                    return <p className="text-gray-600">No hay datos por familia para este activo.</p>;
+                                }
+
+                                return (
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {entries.map(([key, value]) => (
+                                            <div key={key} className=" pb-2">
+                                                <label className="block text-sm font-medium text-gray-500">
+                                                    {key}
+                                                </label>
+                                                <p className="mt-1 text-sm text-gray-900 break-words">
+                                                    {typeof value === "object"
+                                                        ? JSON.stringify(value, null, 2)
+                                                        : value?.toString() ?? "N/A"}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                );
+                            })()}
                         </div>
-                    )*/}
+                    )}
 
                     {activeTab === 4 && (
                         <div className="mt-4">
