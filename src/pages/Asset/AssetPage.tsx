@@ -425,42 +425,58 @@ const AssetPage: React.FC = () => {
                     )}
 
                     {activeTab === 3 && (
-                        <div className="space-y-4">
-                            {(() => {
-                                // Si jsonData viene como string, intenta parsearlo
-                                let data: Record<string, any> = {};
-                                try {
-                                    data = typeof equipmentData.jsonData === "string"
-                                        ? JSON.parse(equipmentData.jsonData)
-                                        : equipmentData.jsonData || {};
-                                } catch (err) {
-                                    console.error("Error al parsear jsonData:", err);
-                                }
+  <div className="space-y-4">
+    {(() => {
+      // Si jsonData viene como string, intenta parsearlo
+      let data: Record<string, any> = {};
+      try {
+        data = typeof equipmentData.jsonData === "string"
+          ? JSON.parse(equipmentData.jsonData)
+          : equipmentData.jsonData || {};
+      } catch (err) {
+        console.error("Error al parsear jsonData:", err);
+      }
 
-                                const entries = Object.entries(data);
-                                if (entries.length === 0) {
-                                    return <p className="text-gray-600">No hay datos por familia para este activo.</p>;
-                                }
+      const entries = Object.entries(data);
+      if (entries.length === 0) {
+        return <p className="text-gray-600">No hay datos por familia para este activo.</p>;
+      }
 
-                                return (
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {entries.map(([key, value]) => (
-                                            <div key={key} className=" pb-2">
-                                                <label className="block text-sm font-medium text-gray-500">
-                                                    {key}
-                                                </label>
-                                                <p className="mt-1 text-sm text-gray-900 break-words">
-                                                    {typeof value === "object"
-                                                        ? JSON.stringify(value, null, 2)
-                                                        : value?.toString() ?? "N/A"}
-                                                </p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                );
-                            })()}
-                        </div>
-                    )}
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {entries.map(([key, value]) => {
+            // Normaliza el valor a string para comparación
+            const stringValue = value?.toString?.().trim?.() || "";
+
+            // Verifica si el valor indica "dato no ingresado"
+            const isMissing = stringValue === "str" || stringValue === "" || value == null;
+
+            return (
+              <div key={key} className="pb-2">
+                <label className="block text-sm font-medium text-gray-500">
+                  {key}
+                </label>
+                <p
+                  className={`mt-1 text-sm break-words ${
+                    isMissing
+                      ? "italic text-gray-400"
+                      : "text-gray-900"
+                  }`}
+                >
+                  {isMissing
+                    ? "Dato no ingresado"
+                    : typeof value === "object"
+                    ? JSON.stringify(value, null, 2)
+                    : stringValue}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      );
+    })()}
+  </div>
+)}
 
                     {activeTab === 4 && (
                         <div className="mt-4">

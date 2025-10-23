@@ -292,9 +292,9 @@ const AssetMap: React.FC<AssetMapProps> = ({ assets }) => {
     }, [assets, updateVisibleAssets]);
 
     return (
-        <div className="flex flex-col sm:flex-row w-full h-[500px] sm:h-[600px] rounded-xl shadow-md border-2 border-black">
+        <div className="flex flex-col sm:flex-row w-full h-[500px] sm:h-[600px] rounded-xl shadow-md border-2 border-black overflow-hidden">
             {/* Panel lateral */}
-            <div className="w-full sm:w-64 bg-white p-4 overflow-y-auto shadow-md rounded-xl">
+            <div className="hidden sm:block w-full sm:w-64 bg-white p-4 overflow-y-auto shadow-md rounded-xl">
                 <h3 className="font-bold text-lg mb-3">Activos en vista {visibleAssets.length > 0 && ` (${visibleAssets.length})`}</h3>
                 {visibleAssets.length === 0 ? (
                     <p className="text-gray-500 text-sm">No hay activos visibles.</p>

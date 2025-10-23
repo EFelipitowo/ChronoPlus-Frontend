@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { login } from "../../services/authService";
 import TopBar from "../../components/layout/TopBar";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,11 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+      document.title = "Inicio de sesión";
+  }, []);
+  
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -3,7 +3,7 @@ import "../styles/style.css";
 import TopBar_l from "../../components/layout/TopBar_logged";
 import AssetMap from "../../components/layout/AssetMap";
 import MapSearchBar from "../../components/layout/MapSearchBar";
-import { getAllAssets, getLatestAssets } from "../../services/assetService";
+import { getAllAssets } from "../../services/assetService";
 import type { Asset } from "../../services/assetService";
 
 const MapPage: React.FC = () => {
@@ -157,7 +157,7 @@ const MapPage: React.FC = () => {
                     </div>
 
                 ) : (
-                    <div className="w-full max-w-6xl">
+                    <div className="w-full max-w-7xl sm:h-[80vh] lg:h-[85vh] rounded-2xl px-4">
                         <AssetMap assets={formattedAssets} />
                     </div>
                 )}

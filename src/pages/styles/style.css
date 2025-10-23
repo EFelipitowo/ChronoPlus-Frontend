@@ -23,6 +23,8 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+
+
 .top-bar {
   position: absolute;
   top: 0;
@@ -39,17 +41,34 @@
 .top-bar-button {
   background-color: #f7f7f7;
 }
+
 .top-bar-button:hover{
   border-color: #f7f7f7;
 }
 
-.scroll-bar-map::-webkit-scrollbar{
+.scroll-bar-map {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* suaviza el scroll en iOS */
+}
+
+.scroll-bar-map::-webkit-scrollbar {
   background-color: #f7f7f7;
 }
 
-.scroll-bar-map::-webkit-scrollbar-thumb{
+.scroll-bar-map::-webkit-scrollbar-thumb {
   background-color: #4b4b4b;
   border-radius: 10px;
+}
+
+@media (max-width: 640px) {
+  .scroll-bar-map::-webkit-scrollbar {
+    display: none; /* Oculta la barra visualmente */
+  }
+
+  .scroll-bar-map {
+    -ms-overflow-style: none;  /* IE y Edge */
+    scrollbar-width: none;     /* Firefox */
+  }
 }
 
 .tab-button {
