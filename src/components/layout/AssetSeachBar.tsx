@@ -46,6 +46,7 @@ const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
     handleSearch,
     handleClearFilters,
     handleKeyPress,
+    handleExportToExcel
 }) => {
     return (
         <div className="bg-gray-100 rounded-2xl p-4 sm:p-6 lg:p-8 mb-8 border border-black">
@@ -190,7 +191,7 @@ const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
                     {/* Botones de acción */}
                     <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3">
                         <button
-                            onClick={handleClearFilters}
+                            onClick={handleExportToExcel}
                             className="px-4 py-2 excel-button  text-white rounded-lg transition text-sm sm:text-base"
                         >
                             Generar Excel

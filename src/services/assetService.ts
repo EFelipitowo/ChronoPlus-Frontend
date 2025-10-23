@@ -174,7 +174,7 @@ export async function generateExcelReport(filterParams: Record<string, any> = {}
     }
   });
 
-  const response = await apiFetchRaw(`/assets/export-excel?${params.toString()}`, {
+  const response = await apiFetchRaw(`/assets/export?${params.toString()}`, {
     method: "GET",
   });
 
