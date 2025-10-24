@@ -23,8 +23,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-
-
 .top-bar {
   position: absolute;
   top: 0;
@@ -108,7 +106,7 @@
   background-color: white!important;
   color: #fb2c36;
   cursor: pointer;
-  border-color: black; 
+  border-color: #fb2c36; 
   outline: none;
 }
 
@@ -127,11 +125,49 @@
   background-color: white!important;
   color: #0F9D58;
   cursor: pointer;
-  border-color: black; 
+  border-color: #0F9D58; 
   outline: none;
 }
 
 .excel-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.blue-button{
+  background-color: #295eff;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
+
+.blue-button:hover {
+  background-color: white!important;
+  color: #295eff;
+  cursor: pointer;
+  border-color: #295eff; 
+  outline: none;
+}
+
+.blue-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.black-button{
+  background-color: black;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
+
+.black-button:hover {
+  background-color: white!important;
+  color: black;
+  cursor: pointer;
+  border-color: black; 
+  outline: none;
+}
+
+.black-button:focus {
   outline: none;
   box-shadow: none;
 }

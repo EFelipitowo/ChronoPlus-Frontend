@@ -110,7 +110,7 @@ const HomePage: React.FC = () => {
         const { items, metadata } = await getLatestAssets(
           pageSize,
           page,
-          ["tag", "brand", "status", "company", "substation_name", "nema", "cen", "d.modificado_en"],
+          ["tag", "brand", "status", "company", "substation_name", "codigo_nema", "cen", "d.modificado_en"],
           filterParams
         );
 
@@ -218,7 +218,7 @@ const HomePage: React.FC = () => {
       }
 
       const { items, metadata } = await getLatestAssets(pageSize, 1,
-        ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "nema", "cen"],
+        ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "codigo_nema", "cen"],
         filterParams
       );
 

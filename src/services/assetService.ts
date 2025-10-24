@@ -51,7 +51,8 @@ export interface AssetFile {
   nombre: string;
   tipo: string;
   fechaSubida: string; // timestamp
-  gcs_path: string; // URL para abrir o descargar
+  gcs_path: string; 
+  categoria: string;// URL para abrir o descargar
 }
 
 export function getAssetFiles(id: string): Promise<ApiResponse<AssetFile>> {
@@ -184,4 +185,25 @@ export async function generateExcelReport(filterParams: Record<string, any> = {}
   }
 
   return await response.blob();
+}
+
+// Subir un archivo asociado a un activo
+export async function uploadAssetFile(
+  tag: string,
+  file: File,
+  description: string,
+  category: string
+): Promise<void> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("filename", file.name);
+  formData.append("mimetype", file.type);
+  formData.append("description", description);
+  formData.append("category", category);
+
+  await apiFetchRaw(`/assets/${tag}/upload`, {
+    method: "POST",
+    body: formData,
+    // No establecer Content-Type
+  });
 }

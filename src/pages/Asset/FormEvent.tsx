@@ -20,6 +20,9 @@ interface AssetData {
     subestacion: string;
     encargado: string;
     observaciones: string;
+    latitud: number | null;
+    longitud: number | null;
+    nema: string;
 }
 
 interface Empresa {
@@ -120,7 +123,10 @@ const FormAsset: React.FC = () => {
         empresa: "",
         subestacion: "",
         encargado: "",
-        observaciones: ""
+        observaciones: "",
+        latitud: "",
+        longitud: "",
+        nema: ""
     });
 
 
@@ -260,6 +266,9 @@ const FormAsset: React.FC = () => {
                     empresa: String(items.empresa ?? prev.empresa),
                     subestacion: String(items.nombre_subestacion ?? prev.subestacion),
                     encargado: String(items.encargado ?? prev.encargado),
+                    latitud: items.latitud != null ? String(items.latitud) : "",
+                    longitud: items.longitud != null ? String(items.longitud) : "",
+                    nema: String(items.codigo_nema ?? prev.nema)
                 }));
 
                 // Buscar el ID del encargado por su nombre
@@ -493,6 +502,52 @@ const FormAsset: React.FC = () => {
                             </div>
                         </div>
 
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            {/* Latitud */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Latitud
+                                </label>
+                                <input
+                                    type="text"
+                                    name="latitud"
+                                    value={formData.latitud}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                                    placeholder="Ej: -33.456789"
+                                />
+                            </div>
+
+                            {/* Longitud */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Longitud
+                                </label>
+                                <input
+                                    type="text"
+                                    name="longitud"
+                                    value={formData.longitud}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                                    placeholder="Ej: -70.648273"
+                                />
+                            </div>
+                        </div>
+                        {/* NEMA */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Código NEMA
+                            </label>
+                            <input
+                                type="text"
+                                name="nema"
+                                value={formData.nema}
+                                onChange={handleInputChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                                placeholder="Ej: NEMA-12345"
+                            />
+                        </div>
+
                         {/* Encargado con autocompletado */}
                         <div className="mb-6 relative">
                             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -544,13 +599,13 @@ const FormAsset: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={handleCancel}
-                                className="px-8 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
+                                className="clean-button px-8 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
                             >
                                 Cancelar
                             </button>
                             <button
                                 type="submit"
-                                className="px-8 py-3 bg-[#8B322C] text-white rounded-lg hover:bg-[#6B2925] transition font-semibold"
+                                className="px-8 py-3 blue-button text-white rounded-lg transition font-semibold"
                             >
                                 Actualizar
                             </button>

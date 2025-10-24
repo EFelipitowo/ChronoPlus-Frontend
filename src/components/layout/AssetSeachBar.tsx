@@ -204,7 +204,7 @@ const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
                         </button>
                         <button
                             onClick={handleSearch}
-                            className="px-4 py-2 bg-[#8B322C] text-white rounded-lg hover:bg-[#6B2925] transition text-sm sm:text-base"
+                            className="px-4 py-2 text-white rounded-lg black-button transition text-sm sm:text-base"
                         >
                             Aplicar Filtros
                         </button>

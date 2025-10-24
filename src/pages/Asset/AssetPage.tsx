@@ -4,8 +4,9 @@ import "../../pages/styles/style.css"
 import TopBar_l from '../../components/layout/TopBar_logged';
 import Table from '../../components/ui/Table';
 import type { DataItem, ColumnConfig } from "../../components/ui/Table";
-import { getAssetData, getAssetEvents, getAssetFiles, downloadAssetFile } from '../../services/assetService';
-import type { ApiSingleResponse, Asset, AssetEvent } from '../../services/assetService';
+import { getAssetData, getAssetEvents, getAssetFiles, downloadAssetFile, uploadAssetFile } from '../../services/assetService';
+import type { ApiSingleResponse, Asset, AssetEvent, AssetFile } from '../../services/assetService'
+import UploadFilePopup from '../../components/layout/UploadFilePopup';
 
 // Definimos los tipos TypeScript para nuestros datos
 export interface EquipmentData {
@@ -34,13 +35,6 @@ export interface EquipmentData {
     jsonData: Record<string, any> | string;
 }
 
-interface AssetFile extends DataItem {
-    id: string;
-    nombre: string;
-    tipo_archivo: string;
-    subido_en: string; // timestamp
-    url: string; // URL para abrir o descargar
-}
 
 
 const formatTimestamp = (timestamp: string | number | Date | undefined | null) => {
@@ -79,6 +73,47 @@ const AssetPage: React.FC = () => {
 
     const [files, setFiles] = useState<AssetFile[]>([]);
 
+    // Estados para el modal de subida
+    const [uploadFile, setUploadFile] = useState<File | null>(null);
+    const [uploadDescription, setUploadDescription] = useState("");
+    const [uploadCategory, setUploadCategory] = useState("");
+    const [uploading, setUploading] = useState(false);
+    const [showUploadModal, setShowUploadModal] = useState(false); 
+
+    const handleFileUpload = async () => {
+        if (!uploadFile || !equipmentData?.tag) {
+            alert("Por favor selecciona un archivo.");
+            return;
+        }
+
+        try {
+            setUploading(true);
+            await uploadAssetFile(
+                equipmentData.tag,
+                uploadFile,
+                uploadDescription,
+                uploadCategory
+            );
+
+            // Cerrar modal y recargar archivos
+            setShowUploadModal(false);
+            setUploadFile(null);
+            setUploadDescription("");
+            setUploadCategory("");
+
+            // Recargar la lista de archivos
+            const { items } = await getAssetFiles(equipmentData.tag);
+            setFiles(items || []);
+
+            alert("Archivo subido exitosamente");
+        } catch (err) {
+            console.error("Error al subir archivo:", err);
+            alert("Error al subir el archivo. Por favor, inténtelo nuevamente.");
+        } finally {
+            setUploading(false);
+        }
+    };
+
     useEffect(() => {
         async function fetchAssetFiles() {
             if (!id) return;
@@ -115,6 +150,11 @@ const AssetPage: React.FC = () => {
             sortable: true,
         },
         {
+            key: 'categoria',
+            label: 'Categoria',
+            sortable: true,
+        },
+        {
             key: 'subido_en',
             label: 'Fecha de subida',
             sortable: true,
@@ -143,12 +183,12 @@ const AssetPage: React.FC = () => {
                                 alert('Hubo un error al descargar el archivo.');
                             }
                         }}
-                        className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                        className="px-3 py-1 text-white text-sm rounded blue-button"
                     >
                         Descargar
                     </button>
-                    <button>
-                        X
+                    <button className='clean-button text-white'>
+                        &times;
                     </button>
                 </div>
             )
@@ -156,12 +196,12 @@ const AssetPage: React.FC = () => {
 
     ];
     useEffect(() => {
-    if (equipmentData?.tag) {
-        document.title = `${equipmentData.tag} - Detalle del Activo`;
-    } else {
-        document.title = "Cargando activo...";
-    }
-}, [equipmentData]);
+        if (equipmentData?.tag) {
+            document.title = `${equipmentData.tag} - Detalle del Activo`;
+        } else {
+            document.title = "Cargando activo...";
+        }
+    }, [equipmentData]);
 
     useEffect(() => {
         async function fetchAssetEvents() {
@@ -425,58 +465,57 @@ const AssetPage: React.FC = () => {
                     )}
 
                     {activeTab === 3 && (
-  <div className="space-y-4">
-    {(() => {
-      // Si jsonData viene como string, intenta parsearlo
-      let data: Record<string, any> = {};
-      try {
-        data = typeof equipmentData.jsonData === "string"
-          ? JSON.parse(equipmentData.jsonData)
-          : equipmentData.jsonData || {};
-      } catch (err) {
-        console.error("Error al parsear jsonData:", err);
-      }
+                        <div className="space-y-4">
+                            {(() => {
+                                // Si jsonData viene como string, intenta parsearlo
+                                let data: Record<string, any> = {};
+                                try {
+                                    data = typeof equipmentData.jsonData === "string"
+                                        ? JSON.parse(equipmentData.jsonData)
+                                        : equipmentData.jsonData || {};
+                                } catch (err) {
+                                    console.error("Error al parsear jsonData:", err);
+                                }
 
-      const entries = Object.entries(data);
-      if (entries.length === 0) {
-        return <p className="text-gray-600">No hay datos por familia para este activo.</p>;
-      }
+                                const entries = Object.entries(data);
+                                if (entries.length === 0) {
+                                    return <p className="text-gray-600">No hay datos por familia para este activo.</p>;
+                                }
 
-      return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {entries.map(([key, value]) => {
-            // Normaliza el valor a string para comparación
-            const stringValue = value?.toString?.().trim?.() || "";
+                                return (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {entries.map(([key, value]) => {
+                                            // Normaliza el valor a string para comparación
+                                            const stringValue = value?.toString?.().trim?.() || "";
 
-            // Verifica si el valor indica "dato no ingresado"
-            const isMissing = stringValue === "str" || stringValue === "" || value == null;
+                                            // Verifica si el valor indica "dato no ingresado"
+                                            const isMissing = stringValue === "str" || stringValue === "" || value == null;
 
-            return (
-              <div key={key} className="pb-2">
-                <label className="block text-sm font-medium text-gray-500">
-                  {key}
-                </label>
-                <p
-                  className={`mt-1 text-sm break-words ${
-                    isMissing
-                      ? "italic text-gray-400"
-                      : "text-gray-900"
-                  }`}
-                >
-                  {isMissing
-                    ? "Dato no ingresado"
-                    : typeof value === "object"
-                    ? JSON.stringify(value, null, 2)
-                    : stringValue}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      );
-    })()}
-  </div>
-)}
+                                            return (
+                                                <div key={key} className="pb-2">
+                                                    <label className="block text-sm font-medium text-gray-500">
+                                                        {key}
+                                                    </label>
+                                                    <p
+                                                        className={`mt-1 text-sm break-words ${isMissing
+                                                            ? "italic text-gray-400"
+                                                            : "text-gray-900"
+                                                            }`}
+                                                    >
+                                                        {isMissing
+                                                            ? "Dato no ingresado"
+                                                            : typeof value === "object"
+                                                                ? JSON.stringify(value, null, 2)
+                                                                : stringValue}
+                                                    </p>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                );
+                            })()}
+                        </div>
+                    )}
 
                     {activeTab === 4 && (
                         <div className="mt-4">
@@ -498,6 +537,23 @@ const AssetPage: React.FC = () => {
                                     sortDirection={sortDirection}
                                 />
                             )}
+
+                            {/* Botón para abrir modal */}
+                            <div className="mt-6 flex justify-center">
+                                <button
+                                    onClick={() => setShowUploadModal(true)}
+                                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition black-button"
+                                >
+                                    + Subir Archivo
+                                </button>
+                            </div>
+                            {/* Modal de subida de archivo */}
+                            <UploadFilePopup
+                                isOpen={showUploadModal}
+                                onClose={() => setShowUploadModal(false)}
+                                onUploadSuccess={(newFiles) => setFiles(newFiles)}
+                                assetTag={equipmentData.tag}
+                            />
                         </div>
                     )}
                 </div>
