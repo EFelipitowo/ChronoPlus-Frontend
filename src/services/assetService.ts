@@ -225,32 +225,28 @@ const getFileNameWithoutExtension = (file: File) => {
 
 
 export const downloadAssetExcel = async (assetId: string) => {
-    const response = await fetch(`/assets/${assetId}/events/export`, {
-        method: 'GET',
-        headers: {
+  // Use your wrapper (it will attach the Authorization header)
+  const response = await apiFetchRaw(`/assets/${assetId}/events/export`, {
+    method: "GET",
+  });
 
-        }
-    });
+  // Convert response to Blob
+  const blob = await response.blob();
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error al descargar la hoja de vida: ${errorText}`);
+  // Try to extract the filename from the Content-Disposition header
+  const contentDisposition = response.headers.get("Content-Disposition");
+  let filename = `eventos_${assetId}.xlsx`;
+
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename\*?=(?:UTF-8''|")?([^"]+)/);
+    if (match && match[1]) {
+      try {
+        filename = decodeURIComponent(match[1]);
+      } catch {
+        filename = match[1];
+      }
     }
+  }
 
-    const arrayBuffer = await response.arrayBuffer();
-    const blob = new Blob([arrayBuffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
-
-    // Intentar extraer el nombre del archivo del header
-    const contentDisposition = response.headers.get('Content-Disposition');
-    let filename = 'HojaDeVida.xlsx';
-    if (contentDisposition) {
-        const match = contentDisposition.match(/filename\*=UTF-8''(.+)|filename="?(.+)"?/);
-        if (match) {
-            filename = decodeURIComponent(match[1] || match[2]);
-        }
-    }
-
-    return { blob, filename };
+  return { blob, filename };
 };
