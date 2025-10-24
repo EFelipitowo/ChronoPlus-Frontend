@@ -121,7 +121,7 @@ const MapPage: React.FC = () => {
         }));
 
     return (
-        <div>
+        <div className="min-h-screen">
             <div className="top-0 left-0 justify-center shadow-md z-50 ">
                 <TopBar_l />
             </div>
@@ -143,10 +143,7 @@ const MapPage: React.FC = () => {
                     />
             </div>
             
-            <div className="flex-grow flex flex-col items-center justify-start">
-                
-                
-
+            <div className="min-h-screen flex-grow flex flex-col items-center justify-start">
                 {loading ? (
                     <div className="bg-gray-100 border border-black rounded-2xl p-4 w-full max-w-sm mx-auto mt-20 shadow">
                         <p className="text-center text-gray-700 font-medium">Cargando activos...</p>
@@ -157,12 +154,11 @@ const MapPage: React.FC = () => {
                     </div>
 
                 ) : (
-                    <div className="w-full max-w-7xl sm:h-[80vh] lg:h-[85vh] rounded-2xl px-4">
+                    <div className="w-full flex-1 rounded-2xl relative container mx-auto px-4 py-2 ">
                         <AssetMap assets={formattedAssets} />
                     </div>
                 )}
             </div>
-            <div className="mt-6"></div>
         </div>
     );
 };

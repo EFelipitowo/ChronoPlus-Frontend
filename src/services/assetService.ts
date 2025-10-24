@@ -222,3 +222,35 @@ const getFileNameWithoutExtension = (file: File) => {
   nameParts.pop(); // remove last part (extension)
   return nameParts.join(".");
 };
+
+
+export const downloadAssetExcel = async (assetId: string) => {
+    const response = await fetch(`/assets/${assetId}/events/export`, {
+        method: 'GET',
+        headers: {
+
+        }
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error al descargar la hoja de vida: ${errorText}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const blob = new Blob([arrayBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+
+    // Intentar extraer el nombre del archivo del header
+    const contentDisposition = response.headers.get('Content-Disposition');
+    let filename = 'HojaDeVida.xlsx';
+    if (contentDisposition) {
+        const match = contentDisposition.match(/filename\*=UTF-8''(.+)|filename="?(.+)"?/);
+        if (match) {
+            filename = decodeURIComponent(match[1] || match[2]);
+        }
+    }
+
+    return { blob, filename };
+};

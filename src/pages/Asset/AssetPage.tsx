@@ -4,7 +4,7 @@ import "../../pages/styles/style.css"
 import TopBar_l from '../../components/layout/TopBar_logged';
 import Table from '../../components/ui/Table';
 import type { DataItem, ColumnConfig } from "../../components/ui/Table";
-import { getAssetData, getAssetEvents, getAssetFiles, downloadAssetFile, uploadAssetFile } from '../../services/assetService';
+import { getAssetData, getAssetEvents, getAssetFiles, downloadAssetFile, uploadAssetFile, downloadAssetExcel } from '../../services/assetService';
 import type { ApiSingleResponse, Asset, AssetEvent, AssetFile } from '../../services/assetService'
 import UploadFilePopup from '../../components/layout/UploadFilePopup';
 
@@ -78,7 +78,7 @@ const AssetPage: React.FC = () => {
     const [uploadDescription, setUploadDescription] = useState("");
     const [uploadCategory, setUploadCategory] = useState("");
     const [uploading, setUploading] = useState(false);
-    const [showUploadModal, setShowUploadModal] = useState(false); 
+    const [showUploadModal, setShowUploadModal] = useState(false);
 
     const handleFileUpload = async () => {
         if (!uploadFile || !equipmentData?.tag) {
@@ -559,18 +559,42 @@ const AssetPage: React.FC = () => {
                 </div>
 
             </div>
+            <div className='flex items-center mb-8 mt-6 gap-8 justify-center'>
+                <button
+                    onClick={async () => {
+                        try {
+                            if (!id) return;
+                            const { blob, filename } = await downloadAssetExcel(id);
+
+                            const url = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = filename;
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                            window.URL.revokeObjectURL(url);
+                        } catch (err) {
+                            console.error(err);
+                            alert("Error al descargar la hoja de vida");
+                        }
+                    }}
+                    className="px-4 py-2 excel-button text-white text-sm rounded-lg transition"
+                >
+                    Descargar Hoja de Vida
+                </button>
+                <button
+                    onClick={() => navigate(`/asset/${id}/register-event`)}
+                    className="px-4 py-2 black-button text-white text-sm rounded-lg  transition"
+                >
+                    + Registrar Evento
+                </button>
+            </div>
             <div className="flex items-center mb-8 mt-6 gap-8">
                 <div className="flex-grow border-t border-gray-600"></div>
                 <div className="bg-white px-4 rounded-2xl border-gray-800">
                     <span className="text-lg font-semibold text-black">Registros Historicos</span>
-
                 </div>
-                <button
-                    onClick={() => navigate(`/asset/${id}/register-event`)}
-                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition"
-                >
-                    + Registrar Evento
-                </button>
                 <div className="flex-grow border-t border-gray-600"></div>
             </div>
             <div className="relative container mx-auto px-4 py-8 mt-6">
