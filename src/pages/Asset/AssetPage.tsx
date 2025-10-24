@@ -470,7 +470,7 @@ const AssetPage: React.FC = () => {
                                 // Si jsonData viene como string, intenta parsearlo
                                 let data: Record<string, any> = {};
                                 try {
-                                    data = equipmentData.jsonData === "str"
+                                    data = typeof equipmentData.jsonData === "string"
                                         ? JSON.parse(equipmentData.jsonData)
                                         : equipmentData.jsonData || {};
                                 } catch (err) {
