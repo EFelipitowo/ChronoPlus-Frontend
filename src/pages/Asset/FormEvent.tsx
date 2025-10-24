@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import TopBar_l from "../../components/layout/TopBar_logged";
-import { getAssetData } from "../../services/assetService";
+import { getAssetData, getAssetFiles } from "../../services/assetService";
 import { jwtDecode } from "jwt-decode";
+import UploadFilePopup from "../../components/layout/UploadFilePopup";
+import type { AssetFile } from "../../services/assetService";
 
 interface TokenPayload {
     id: string;
@@ -105,6 +107,10 @@ const estadosMenoresPorMayor: Record<string, Array<{ value: string, label: strin
 };
 
 const FormAsset: React.FC = () => {
+
+    const [showUploadModal, setShowUploadModal] = useState(false);
+    const [files, setFiles] = useState<AssetFile[]>([]);
+
     const { id } = useParams<string>();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
@@ -582,7 +588,7 @@ const FormAsset: React.FC = () => {
                         </div>
 
                         {/* Observaciones */}
-                        <div className="mb-8">
+                        <div className="mb-3">
                             <label className="block text-sm font-semibold text-gray-700 mb-2">
                                 Observaciones
                             </label>
@@ -595,6 +601,25 @@ const FormAsset: React.FC = () => {
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C] resize-none"
                             />
                         </div>
+
+                        {/* Botón para abrir modal de subida */}
+                        <div className="flex justify-center mb-6">
+                        <button
+                            type="button"
+                            onClick={() => setShowUploadModal(true)}
+                            className="px-6 py-2 black-button rounded-lg text-white text-sm font-semibold"
+                        >
+                            + Subir Archivo
+                        </button>
+                        </div>
+
+                        {/* Modal para subir archivos */}
+                        <UploadFilePopup
+                        isOpen={showUploadModal}
+                        onClose={() => setShowUploadModal(false)}
+                        onUploadSuccess={(newFiles) => setFiles(newFiles)}
+                        assetTag={id ?? ""}
+                        />
 
                         {/* Botones */}
                         <div className="flex justify-center space-x-4">
