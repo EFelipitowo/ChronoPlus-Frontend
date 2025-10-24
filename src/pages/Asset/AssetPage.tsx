@@ -322,16 +322,16 @@ const AssetPage: React.FC = () => {
             <div className="top-0 left-0 justify-center shadow-md z-50 ">
                 <TopBar_l></TopBar_l>
             </div>
-            <div className="max-w-4xl mt-26 mx-auto p-6 bg-white rounded-lg shadow-md border-1 border-black">
+            <div className=" w-[95%] max-w-4xl mt-26 mx-auto p-6 bg-white rounded-lg shadow-md border-1 border-black">
 
                 {/* Encabezado con TAG */}
-                <div className="border-b border-gray-200 pb-4 mb-6">
+                <div className="border-b border-gray-200 pb-4 mb-6  overflow-x-auto">
                     <h1 className="text-2xl font-bold text-gray-800">TAG: {equipmentData.tag}</h1>
                     <p className="text-gray-600 mt-1">Familia: {equipmentData.familia}</p>
                 </div>
 
                 {/* Pestañas */}
-                <div className="mb-6">
+                <div className="mb-6  overflow-x-auto">
                     <div className="flex border-b border-gray-200">
                         <button
                             className={`py-2 px-4 text-sm tab-button ${activeTab === 1 ? 'active' : ''}`}
@@ -363,7 +363,7 @@ const AssetPage: React.FC = () => {
                 {/* Contenido de las pestañas */}
                 <div className="tab-content">
                     {activeTab === 1 && (
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-500">Código CEN</label>
@@ -428,7 +428,7 @@ const AssetPage: React.FC = () => {
                     )}
 
                     {activeTab === 2 && (
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-500">Tensión (cod)</label>
