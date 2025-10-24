@@ -30,8 +30,8 @@ const MapPage: React.FC = () => {
                 setLoading(true);
                 const { items } = await getAllAssets([
                     "tag",
-                    "latitud",
-                    "longitud",
+                    "latitude",
+                    "longitude",
                     "substation_name",
                     "company",
                     "status"

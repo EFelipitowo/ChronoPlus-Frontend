@@ -163,7 +163,7 @@ const HomePage: React.FC = () => {
         from: filtroFechaDesde,
         to: filtroFechaHasta,
         nema: filtroNema,
-        cen: filtroCen,
+        cen: filtroCen
       };
 
       if (searchValue) {

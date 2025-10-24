@@ -102,7 +102,7 @@ export async function downloadAssetFile(fileId: string): Promise<{ blob: Blob; f
 export function getLatestAssets(
   limit: number = 20,
   page: number = 1,
-  fields: string[] = [],               // optional fields to retrieve
+  fields: string[] = [],               // optional fields to retrieve (field projection)
   filterParams: Record<string, any> = {} // filters to apply
 ): Promise<ApiResponse<Asset>> {
   const params = new URLSearchParams({
