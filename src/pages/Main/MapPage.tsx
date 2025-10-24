@@ -125,7 +125,7 @@ const MapPage: React.FC = () => {
             <div className="top-0 left-0 justify-center shadow-md z-50 ">
                 <TopBar_l />
             </div>
-            <div className="relative container mx-auto px-4 py-10 mt-16">
+            <div className="relative container mx-auto px-4 py-10 mt-12">
             <MapSearchBar
                         searchValue={searchValue}
                         setSearchValue={setSearchValue}

@@ -20,8 +20,8 @@ interface AssetData {
     subestacion: string;
     encargado: string;
     observaciones: string;
-    latitud: number | null;
-    longitud: number | null;
+    latitud: number | string | null;
+    longitud: number | string | null;
     nema: string;
 }
 
@@ -48,6 +48,14 @@ const estadoMayorTextMap: Record<string, string> = {
     "400": "400 Fin Vida Útil",
     "500": "500 Tag Modificado"
 };
+
+const parseEstadoCode = (estadoStr: string | null | undefined) => {
+    if (!estadoStr) return "";
+    // Take the first number before a space
+    const match = estadoStr.match(/^(\d+)/);
+    return match ? match[1] : "";
+};
+
 
 // Definir los estados menores por cada estado mayor
 const estadosMenoresPorMayor: Record<string, Array<{ value: string, label: string }>> = {
@@ -124,8 +132,8 @@ const FormAsset: React.FC = () => {
         subestacion: "",
         encargado: "",
         observaciones: "",
-        latitud: "",
-        longitud: "",
+        latitud: null as number | null,
+        longitud: null as number | null,
         nema: ""
     });
 
@@ -222,68 +230,59 @@ const FormAsset: React.FC = () => {
 
 
     // Actualizar estados menores cuando cambia el estado mayor
+    // Update estados menores when estadoMayor changes
     useEffect(() => {
+        if (!formData.estadoMayor) {
+            setEstadosMenores([]);
+            setFormData(prev => ({ ...prev, estadoMenor: "" }));
+            return;
+        }
 
-        if (formData.estadoMayor) {
-            const nuevosEstadosMenores = estadosMenoresPorMayor[formData.estadoMayor] || [];
-            setEstadosMenores(nuevosEstadosMenores);
+        const nuevosEstadosMenores = estadosMenoresPorMayor[formData.estadoMayor] || [];
+        setEstadosMenores(nuevosEstadosMenores);
 
-            if (nuevosEstadosMenores.length > 0 && !nuevosEstadosMenores.find(e => e.value === formData.estadoMenor)) {
-                setFormData(prev => ({
-                    ...prev,
-                    estadoMenor: nuevosEstadosMenores[0].value
-                }));
-            }
+        // If current estadoMenor is invalid, set first valid option
+        if (!nuevosEstadosMenores.some(e => e.value === formData.estadoMenor)) {
+            setFormData(prev => ({
+                ...prev,
+                estadoMenor: nuevosEstadosMenores.length > 0 ? nuevosEstadosMenores[0].value : ""
+            }));
         }
     }, [formData.estadoMayor]);
+
 
     // Simular carga de datos del activo
     useEffect(() => {
         const fetchAssetData = async () => {
             try {
-                // Primero obtener los datos de referencia
                 await fetchDataFromAPI();
 
+                const { items } = await getAssetData(id);
+                const estadoMayorCode = parseEstadoCode(items.tag_estado_mayor); // "200"
+                const menores = estadosMenoresPorMayor[estadoMayorCode] || [];
 
-                const { items, metadata } = await getAssetData(id);
-                // Simulación de datos del activo - reemplazar con llamada API real
-                //const mockData: AssetData = {
-                //    id: id || "1",
-                //    tag: id || "52A3150A0001",
-                //    estadoMayor: "300",
-                //    estadoMenor: "301",
-                //    empresa: "1",
-                //    subestacion: "49 Verbas Buenas",
-                //    encargado: "Juan Pérez", // Ahora usamos el nombre directamente
-                //    observaciones: "- Fallo Parte N123\n- Se requiere componentes... para reparar"
-                //};
+                // Find the option that matches the backend estado
+                const matchedEstadoMenor = menores.find(e => e.value.startsWith(parseEstadoCode(items.tag_estado)))?.value || (menores[0]?.value ?? "");
 
-                setAssetData(items);
                 setFormData(prev => ({
                     ...prev,
-                    estadoMayor: String(items.tag_estado_mayor ?? prev.estadoMayor),
-                    estadoMenor: String(items.tag_estado ?? prev.estadoMenor),
+                    estadoMayor: estadoMayorCode,
+                    estadoMenor: matchedEstadoMenor,
                     empresa: String(items.empresa ?? prev.empresa),
                     subestacion: String(items.nombre_subestacion ?? prev.subestacion),
                     encargado: String(items.encargado ?? prev.encargado),
-                    latitud: items.latitud != null ? String(items.latitud) : "",
-                    longitud: items.longitud != null ? String(items.longitud) : "",
+                    latitud: items.latitud ? parseFloat(items.latitud) : null,
+                    longitud: items.longitud ? parseFloat(items.longitud) : null,
                     nema: String(items.codigo_nema ?? prev.nema)
                 }));
 
-                // Buscar el ID del encargado por su nombre
-                //const encargadoEncontrado = encargados.find(e => e.nombre === mockData.encargado);
-                //if (encargadoEncontrado) {
-                //    setSelectedEncargadoId(encargadoEncontrado.id.toString());
-                //}
+                setEstadosMenores(menores);
 
-                // Inicializar estados menores
-                //const estadosIniciales = estadosMenoresPorMayor[mockData.estadoMayor] || [];
-                //setEstadosMenores(estadosIniciales);
 
+                setEstadosMenores(menores);
                 setLoading(false);
-            } catch (error) {
-                console.error("Error fetching asset data:", error);
+            } catch (err) {
+                console.error(err);
                 setLoading(false);
             }
         };
@@ -296,7 +295,7 @@ const FormAsset: React.FC = () => {
 
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: name === "latitud" || name === "longitud" ? (value ? parseFloat(value) : null) : value
         }));
 
         // Si es el campo encargado, filtrar sugerencias
@@ -323,7 +322,10 @@ const FormAsset: React.FC = () => {
                 company: formData.empresa,
                 substation: formData.subestacion,
                 inCharge: selectedEncargadoId,
-                observation: formData.observaciones
+                observation: formData.observaciones,
+                longitude: formData.longitud ? parseFloat(formData.longitud) : null,
+                latitude: formData.latitud ? parseFloat(formData.latitud) : null,
+                nema: formData.nema
             };
 
             console.log("Datos a actualizar:", dataToSend);
@@ -534,7 +536,7 @@ const FormAsset: React.FC = () => {
                             </div>
                         </div>
                         {/* NEMA */}
-                        <div>
+                        <div className="mb-6 relative">
                             <label className="block text-sm font-semibold text-gray-700 mb-2">
                                 Código NEMA
                             </label>
@@ -596,18 +598,19 @@ const FormAsset: React.FC = () => {
 
                         {/* Botones */}
                         <div className="flex justify-center space-x-4">
+
+                            <button
+                                type="submit"
+                                className="px-8 py-3 blue-button text-white rounded-lg transition font-semibold"
+                            >
+                                Actualizar
+                            </button>
                             <button
                                 type="button"
                                 onClick={handleCancel}
                                 className="clean-button px-8 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
                             >
                                 Cancelar
-                            </button>
-                            <button
-                                type="submit"
-                                className="px-8 py-3 blue-button text-white rounded-lg transition font-semibold"
-                            >
-                                Actualizar
                             </button>
                         </div>
                     </form>

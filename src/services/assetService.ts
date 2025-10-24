@@ -196,14 +196,29 @@ export async function uploadAssetFile(
 ): Promise<void> {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("filename", file.name);
-  formData.append("mimetype", file.type);
-  formData.append("description", description);
-  formData.append("category", category);
+  formData.append("nombre", getFileNameWithoutExtension(file));
+  formData.append("tipo_archivo", mimeToFriendly(file.type));
+  formData.append("descripcion", description);
+  formData.append("categoria", category);
 
-  await apiFetchRaw(`/assets/${tag}/upload`, {
+  await apiFetchRaw(`/assets/${tag}/documents`, {
     method: "POST",
     body: formData,
     // No establecer Content-Type
   });
 }
+
+//Utility
+const mimeToFriendly = (mime: string) => {
+  if (mime.startsWith("image/")) return "Imagen";
+  if (mime === "application/pdf") return "pdf";
+  if (mime.includes("word")) return "Word";
+  return "Archivo";
+};
+
+const getFileNameWithoutExtension = (file: File) => {
+  const nameParts = file.name.split(".");
+  if (nameParts.length === 1) return file.name; // no extension
+  nameParts.pop(); // remove last part (extension)
+  return nameParts.join(".");
+};

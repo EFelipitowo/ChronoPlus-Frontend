@@ -34,12 +34,12 @@ const MapSearchBar: React.FC<MapSearchBarProps> = ({
 }) => {
     
     return (
-        <div className="bg-gray-100 rounded-2xl p-4 sm:p-6 lg:p-8 mb-8 border border-black">
+        <div className="bg-gray-100 rounded-2xl p-2 sm:p-2 lg:p-4 mb-8 mt-4 border border-black">
             {/* Título */}
-            <div className="relative container mx-auto px-4 py-10">
+            <div className="relative container mx-auto px-4 py-0">
                 <div className="bg-gray-100 rounded-2xl p-4 sm:p-6">
                     <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-gray-800">
-                        Mapa de Equipos
+                        Mapa de Activos
                     </h1>
                 </div>
             </div>

@@ -191,6 +191,12 @@ const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
                     {/* Botones de acción */}
                     <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3">
                         <button
+                            onClick={handleSearch}
+                            className="px-4 py-2 text-white rounded-lg black-button transition text-sm sm:text-base"
+                        >
+                            Aplicar Filtros
+                        </button>
+                        <button
                             onClick={handleExportToExcel}
                             className="px-4 py-2 excel-button  text-white rounded-lg transition text-sm sm:text-base"
                         >
@@ -201,12 +207,6 @@ const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
                             className="px-4 py-2 clean-button text-white rounded-lg transition text-sm sm:text-base"
                         >
                             Limpiar Filtros
-                        </button>
-                        <button
-                            onClick={handleSearch}
-                            className="px-4 py-2 text-white rounded-lg black-button transition text-sm sm:text-base"
-                        >
-                            Aplicar Filtros
                         </button>
                     </div>
                 </div>
