@@ -77,7 +77,7 @@ const AssetMap: React.FC<AssetMapProps> = ({ assets }) => {
     }, [assets]); // ✅ Depende de `assets`
 
     const debouncedUpdateVisibleAssets = useMemo(
-        () => debounce(updateVisibleAssets, 250), // actualiza cada 250 ms máximo
+        () => debounce(updateVisibleAssets, 350), // actualiza cada 250 ms máximo
         [updateVisibleAssets]
     );
 

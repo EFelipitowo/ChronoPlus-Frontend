@@ -6,12 +6,14 @@ import HomePage from './pages/Main/HomePage';
 import AssetPage from './pages/Asset/AssetPage';
 import FormEvent from "./pages/Asset/FormEvent";
 import MapPage from "./pages/Main/MapPage";
+import GraphPage from "./pages/Main/GraphPage";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/graph" element={<GraphPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/map" element={<MapPage />} />
         <Route path="/asset/:id" element={<AssetPage />} />

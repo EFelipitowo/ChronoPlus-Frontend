@@ -26,7 +26,6 @@ const UploadFilePopup: React.FC<FileUploadModalProps> = ({
             alert("Por favor selecciona un archivo.");
             return;
         }
-
         try {
             setUploading(true);
             await uploadAssetFile(
@@ -35,7 +34,6 @@ const UploadFilePopup: React.FC<FileUploadModalProps> = ({
                 uploadDescription,
                 uploadCategory
             );
-
             // Recargar archivos y notificar al padre
             const { items } = await getAssetFiles(assetTag);
             onUploadSuccess(items || []);

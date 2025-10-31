@@ -49,10 +49,11 @@ export interface Asset extends DataItem {
 export interface AssetFile {
   id: string;
   nombre: string;
-  tipo: string;
-  fechaSubida: string; // timestamp
+  categoria: string;
   gcs_path: string; 
-  categoria: string;// URL para abrir o descargar
+  tipo_archivo: string;
+  subido_en: string
+  subido_por: string;
 }
 
 export function getAssetFiles(id: string): Promise<ApiResponse<AssetFile>> {
