@@ -33,10 +33,9 @@ const GraphPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [hierarchyOrder, setHierarchyOrder] = useState<string[]>([
-        "tag_marca",
-        "empresa",
-        "tag_estado",
-        "tag"
+        "nivel2_equipo",
+        "nivel3_funcionamiento",
+        "tag_marca"
     ]);
     const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(['root']));
     const [selectedAssetTag, setSelectedAssetTag] = useState<string | null>(null);
@@ -55,7 +54,9 @@ const GraphPage: React.FC = () => {
                     "company",
                     "substation_name",
                     "tag_type_code",
-                    "status"
+                    "status",
+                    "level2_equipment",
+                    "level3_functioning"
                 ]);
                 setAssets(items || []);
             } catch (err) {
@@ -230,7 +231,7 @@ const GraphPage: React.FC = () => {
             </div>
 
             {/* Área principal */}
-            <div className="flex-1 pt-16 overflow-y-auto">
+            <div className="flex-1  overflow-y-auto">
                 {selectedAssetTag ? (
                     <AssetDetailView tag={selectedAssetTag} onClose={() => setSelectedAssetTag(null)} />
                 ) : (

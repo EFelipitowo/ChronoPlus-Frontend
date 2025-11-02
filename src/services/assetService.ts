@@ -109,7 +109,7 @@ export function getLatestAssets(
   const params = new URLSearchParams({
     limit: String(limit),
     page: String(page),
-    sort: "updated_at",  // or "creado_en", depending on your default
+    sort: "modified_at",  // or "creado_en", depending on your default
     order: "desc",
   });
 

@@ -78,7 +78,7 @@ const HomePage: React.FC = () => {
     { key: 'modificado_en', label: 'Ultima Actualización', sortable: true, customRender: (value) => formatTimestamp(value) }
   ];
 
-  // Simulación de datos
+  // 
   useEffect(() => {
     async function fetchData() {
       try {
@@ -128,12 +128,6 @@ const HomePage: React.FC = () => {
     fetchData();
   }, [page]);
 
-  /*
-  // Funcion para navegar a asset/id
-  const handleRowClick = (id: string) => {
-    navigate(`/asset/${id}`);
-  };
-  */
 
   // Función para manejar el ordenamiento
   const handleSort = (field: string | number, direction: 'asc' | 'desc') => {

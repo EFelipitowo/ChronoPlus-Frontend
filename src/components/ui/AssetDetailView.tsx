@@ -3,10 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Table from '../../components/ui/Table';
 import type { DataItem, ColumnConfig } from "../../components/ui/Table";
-import { getAssetData, getAssetEvents, getAssetFiles, downloadAssetFile, uploadAssetFile, downloadAssetExcel } from '../../services/assetService';
+import { getAssetData, getAssetEvents, getAssetFiles, downloadAssetFile, downloadAssetExcel } from '../../services/assetService';
 import type { ApiSingleResponse, Asset, AssetEvent, AssetFile } from '../../services/assetService';
 import UploadFilePopup from '../../components/layout/UploadFilePopup';
-
+ 
 const formatTimestamp = (timestamp: string | number | Date | undefined | null) => {
     if (!timestamp) return "-";
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
