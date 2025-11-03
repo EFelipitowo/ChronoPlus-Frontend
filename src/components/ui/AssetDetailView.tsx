@@ -53,7 +53,7 @@ interface AssetDetailViewProps {
     onClose?: () => void; // opcional, para GraphPage
 }
 
-const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag, onClose }) => {
+const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
     const { id: idFromParams } = useParams<{ id: string }>();
     const id = tag || idFromParams;
 

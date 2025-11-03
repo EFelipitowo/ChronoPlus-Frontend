@@ -13,7 +13,7 @@ const TopBar_l: React.FC = () => {
   };
 
   return (
-    <header className="top-bar flex items-center justify-between w-full px-4 py-3 bg-white shadow-md">
+    <header className="top-bar flex items-center justify-between w-full px-4 py-3 bg-white shadow-md z-50 ">
       {/* Logo clickable */}
       <div
         className="flex-shrink-0 cursor-pointer"
@@ -29,16 +29,22 @@ const TopBar_l: React.FC = () => {
       {/* Menú de escritorio */}
       <nav className="hidden md:flex items-center space-x-6 top-bar-button">
         <button
-          onClick={() => navigate("/home")}
+          onClick={() => navigate("/graph")}
           className="text-black hover:text-[#e23428] font-medium transition top-bar-button"
         >
-          Página principal
+          Vista Jerárquica
         </button>
         <button
           onClick={() => navigate("/map")}
           className="text-black hover:text-[#e23428] font-medium transition top-bar-button"
         >
           Mapa
+        </button>
+        <button
+          onClick={() => navigate("/home")}
+          className="text-black hover:text-[#e23428] font-medium transition top-bar-button"
+        >
+          Buscador de Activos
         </button>
       </nav>
 

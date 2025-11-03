@@ -26,8 +26,6 @@ declare global {
     }
 }
 
-
-
 const AssetMap: React.FC<AssetMapProps> = ({ assets }) => {
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<maplibregl.Map | null>(null);
