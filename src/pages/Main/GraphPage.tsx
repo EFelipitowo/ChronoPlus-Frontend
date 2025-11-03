@@ -283,9 +283,9 @@ const GraphPage: React.FC = () => {
             <div
                 className="bg-white border-r border-gray-200 flex flex-col overflow-hidden relative select-none"
                 style={{
-                    top: "55px",
+                    top: "72px",
                     width: `${sidebarWidth}px`,
-                    height: 'calc(100vh - 55px)', // 4rem = altura de TopBar_l (ajusta si es distinto)
+                    height: 'calc(100vh - 72px)', // 4rem = altura de TopBar_l (ajusta si es distinto)
                     transition: isResizing ? "none" : "width 0.1s ease-out"
                 }}
             >
