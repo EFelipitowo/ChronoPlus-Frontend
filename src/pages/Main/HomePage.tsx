@@ -27,6 +27,8 @@ const HomePage: React.FC = () => {
   // Estados para filtros 
   const [filtroMarca, setFiltroMarca] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("");
+  const [filtroEstadoMayor, setFiltroEstadoMayor] = useState("");
+  const [filtroEstadoMenor, setFiltroEstadoMenor] = useState("");
   const [filtroSubestacion, setFiltroSubestacion] = useState("");
   const [filtroNema, setFiltroNema] = useState("");
   const [filtroCen, setFiltroCen] = useState("");
@@ -45,10 +47,13 @@ const HomePage: React.FC = () => {
     searchValue: "",
     searchBy: "tag",
     status: "",
+    status_mayor: "",
+    status_menor: "",
     substation_name: "",
     brand: "",
     from: "",
-    to: ""
+    to: "",
+    cen: ""
   });
 
   // Utility, consider moving to utility file (its also used in Asset.tsx)
@@ -92,7 +97,8 @@ const HomePage: React.FC = () => {
           substation_name,
           brand,
           from,
-          to
+          to,
+          cen
         } = activeFiltersRef.current;
 
         const filterParams: Record<string, string | undefined> = {
@@ -100,7 +106,8 @@ const HomePage: React.FC = () => {
           substation_name,
           brand,
           from,
-          to
+          to,
+          cen
         };
 
         if (currentSearchValue) {
@@ -110,7 +117,7 @@ const HomePage: React.FC = () => {
         const { items, metadata } = await getLatestAssets(
           pageSize,
           page,
-          ["tag", "brand", "status", "company", "substation_name", "codigo_nema", "cen", "d.modificado_en"],
+          ["tag", "brand", "status", "company", "substation_name", "nema", "cen", "d.modificado_en"],
           filterParams
         );
 
@@ -193,10 +200,13 @@ const HomePage: React.FC = () => {
         searchValue,
         searchBy,
         status: filtroEstado,
+        status_mayor: filtroEstadoMayor,
+        status_menor: filtroEstadoMenor,
         substation_name: filtroSubestacion,
         brand: filtroMarca,
         from: filtroFechaDesde,
-        to: filtroFechaHasta
+        to: filtroFechaHasta,
+        cen: filtroCen
       };
 
       const filterParams: Record<string, string | undefined> = {
@@ -204,7 +214,8 @@ const HomePage: React.FC = () => {
         substation_name: filtroSubestacion,
         brand: filtroMarca,
         from: filtroFechaDesde,
-        to: filtroFechaHasta
+        to: filtroFechaHasta,
+        cen: filtroCen
       };
 
       if (searchValue) {
@@ -212,7 +223,7 @@ const HomePage: React.FC = () => {
       }
 
       const { items, metadata } = await getLatestAssets(pageSize, 1,
-        ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "codigo_nema", "cen"],
+        ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "nema", "cen"],
         filterParams
       );
 
@@ -232,6 +243,11 @@ const HomePage: React.FC = () => {
   const handleClearFilters = async () => {
     setSearchValue("");
     setFiltroEstado("");
+    setFiltroEstadoMayor("");
+    setFiltroEstadoMenor("");
+    setFiltroMarca("");
+    setFiltroNema("");
+    setFiltroCen("");
     setFiltroSubestacion("");
     setFiltroFechaDesde("");
     setFiltroFechaHasta("");
@@ -241,10 +257,13 @@ const HomePage: React.FC = () => {
       searchValue: "",
       searchBy: "tag",
       status: "",
+      status_mayor: "",
+      status_menor: "",
       substation_name: "",
       brand: "",
       from: "",
-      to: ""
+      to: "",
+      cen: ""
     };
 
     try {
@@ -291,6 +310,10 @@ const HomePage: React.FC = () => {
             setShowAdvanced={setShowAdvanced}
             filtroEstado={filtroEstado}
             setFiltroEstado={setFiltroEstado}
+            filtroEstadoMayor={filtroEstadoMayor}
+            setFiltroEstadoMayor={setFiltroEstadoMayor}
+            filtroEstadoMenor={filtroEstadoMenor}
+            setFiltroEstadoMenor={setFiltroEstadoMenor}
             filtroSubestacion={filtroSubestacion}
             setFiltroSubestacion={setFiltroSubestacion}
             filtroFechaDesde={filtroFechaDesde}
@@ -341,6 +364,10 @@ const HomePage: React.FC = () => {
             setShowAdvanced={setShowAdvanced}
             filtroEstado={filtroEstado}
             setFiltroEstado={setFiltroEstado}
+            filtroEstadoMayor={filtroEstadoMayor}
+            setFiltroEstadoMayor={setFiltroEstadoMayor}
+            filtroEstadoMenor={filtroEstadoMenor}
+            setFiltroEstadoMenor={setFiltroEstadoMenor}
             filtroSubestacion={filtroSubestacion}
             setFiltroSubestacion={setFiltroSubestacion}
             filtroFechaDesde={filtroFechaDesde}
@@ -390,6 +417,10 @@ const HomePage: React.FC = () => {
             setShowAdvanced={setShowAdvanced}
             filtroEstado={filtroEstado}
             setFiltroEstado={setFiltroEstado}
+            filtroEstadoMayor={filtroEstadoMayor}
+            setFiltroEstadoMayor={setFiltroEstadoMayor}
+            filtroEstadoMenor={filtroEstadoMenor}
+            setFiltroEstadoMenor={setFiltroEstadoMenor}
             filtroSubestacion={filtroSubestacion}
             setFiltroSubestacion={setFiltroSubestacion}
             filtroFechaDesde={filtroFechaDesde}
@@ -440,6 +471,10 @@ const HomePage: React.FC = () => {
           setShowAdvanced={setShowAdvanced}
           filtroEstado={filtroEstado}
           setFiltroEstado={setFiltroEstado}
+          filtroEstadoMayor={filtroEstadoMayor}
+          setFiltroEstadoMayor={setFiltroEstadoMayor}
+          filtroEstadoMenor={filtroEstadoMenor}
+          setFiltroEstadoMenor={setFiltroEstadoMenor}
           filtroSubestacion={filtroSubestacion}
           setFiltroSubestacion={setFiltroSubestacion}
           filtroFechaDesde={filtroFechaDesde}

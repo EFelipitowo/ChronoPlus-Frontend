@@ -6,7 +6,17 @@ import type { DataItem, ColumnConfig } from "../../components/ui/Table";
 import { getAssetData, getAssetEvents, getAssetFiles, downloadAssetFile, downloadAssetExcel } from '../../services/assetService';
 import type { ApiSingleResponse, Asset, AssetEvent, AssetFile } from '../../services/assetService';
 import UploadFilePopup from '../../components/layout/UploadFilePopup';
- 
+
+
+const estadoMayorMap: Record<string, string> = {
+    "1": "100 En Proyecto",
+    "2": "200 En Servicio",
+    "3": "300 Fuera de Servicio",
+    "4": "400 Fin Vida Útil",
+    "5": "500 Tag Modificado",
+};
+
+
 const formatTimestamp = (timestamp: string | number | Date | undefined | null) => {
     if (!timestamp) return "-";
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
@@ -28,6 +38,7 @@ export interface EquipmentData {
     codigoSAP: string;
     codigoNEMA: string;
     estado: string;
+    estado_mayor: string;
     marca: string;
     modelo: string;
     serie: string;
@@ -60,7 +71,7 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
     const [equipmentData, setEquipmentData] = useState<EquipmentData | null>(null);
     //const [metadata, setMetaData] = useState<ApiSingleResponse<Asset>["metadata"] | null>(null);
     const [events, setEvents] = useState<AssetEvent[]>([]);
-    const [, setEventsMetadata] = useState<ApiSingleResponse<Asset>["metadata"] | null>(null);
+    const [eventsMetadata, setEventsMetadata] = useState<ApiSingleResponse<Asset>["metadata"] | null>(null);
 
     const [activeTab, setActiveTab] = useState<number>(1);
     const [filteredData, setFilteredData] = useState<DataItem[]>([]);
@@ -181,14 +192,22 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
 
                 setLoading(true);
 
-                const { items, } = await getAssetData(id);
+                const { items } = await getAssetData(id);
+                // 🔹 Extract estado as string
+                const estado = items.tag_estado?.toString?.() || "N/A";
+
+                // 🔹 Derive estado_mayor from first digit
+                const firstDigit = estado.charAt(0);
+                const estado_mayor = estadoMayorMap[firstDigit] || "N/A";
+
                 // Map APIAsset to EquipmentData
                 const asset: EquipmentData = {
                     tag: items.tag?.toString() || "N/A",
                     codigoCEN: items.codigo_cen?.toString() || "N/A",
                     codigoSAP: items.codigo_sap?.toString() || "N/A",
                     codigoNEMA: items.codigo_nema?.toString() || "N/A",
-                    estado: items.tag_estado || "N/A",
+                    estado,
+                    estado_mayor,
                     marca: items.tag_marca || "N/A",
                     modelo: items.tag_modelo?.toString() || "N/A",
                     serie: items.tag_no_serie?.toString() || "N/A",
@@ -275,7 +294,7 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
 
     return (
         <>
-        <div className=" w-[95%] max-w-4xl mt-26 mx-auto p-6 bg-white rounded-lg shadow-md border-1 border-black">
+            <div className=" w-[95%] max-w-4xl mt-26 mx-auto p-6 bg-white rounded-lg shadow-md border-1 border-black">
                 {/* Encabezado con TAG */}
                 <div className="border-b border-gray-200 pb-4 mb-6  overflow-x-auto">
                     <h1 className="text-2xl font-bold text-gray-800">TAG: {equipmentData.tag}</h1>
@@ -330,21 +349,23 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
                                     <p className="mt-1 text-sm text-gray-900">{equipmentData.codigoNEMA}</p>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-500">Estado</label>
-                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.estado}</p>
+                                    <label className="block text-sm font-medium text-gray-500">Estado Mayor</label>
+                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.estado_mayor}</p>
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-500">Empresa</label>
+                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.empresa}</p>
+                                </div>
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-500">Marca</label>
                                     <p className="mt-1 text-sm text-gray-900">{equipmentData.marca}</p>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-500">Modelo</label>
-                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.modelo}</p>
-                                </div>
-                                <div>
                                     <label className="block text-sm font-medium text-gray-500">Latitud</label>
                                     <p className="mt-1 text-sm text-gray-900">{equipmentData.latitud}</p>
                                 </div>
+
                             </div>
                             <div className="space-y-4">
                                 <div>
@@ -360,21 +381,25 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
                                     <p className="mt-1 text-sm text-gray-900">{equipmentData.familia}</p>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-500">Empresa</label>
-                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.empresa}</p>
+                                    <label className="block text-sm font-medium text-gray-500">Estado Menor</label>
+                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.estado}</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-500">Subestación</label>
                                     <p className="mt-1 text-sm text-gray-900">{equipmentData.subestacion}</p>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-500">Observaciones</label>
-                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.observaciones}</p>
+                                    <label className="block text-sm font-medium text-gray-500">Modelo</label>
+                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.modelo}</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-500">Longitud</label>
                                     <p className="mt-1 text-sm text-gray-900">{equipmentData.longitud}</p>
                                 </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-500">Observaciones</label>
+                                <p className="mt-1 text-sm text-gray-900">{equipmentData.observaciones}</p>
                             </div>
                         </div>
                     )}
@@ -510,7 +535,7 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
                     )}
                 </div>
             </div>
-            
+
             <div className='flex items-center mb-8 mt-6 gap-8 justify-center'>
                 <button
                     onClick={async () => {

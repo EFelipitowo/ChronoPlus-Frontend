@@ -1,5 +1,55 @@
 // src/components/ui/AssetSearchBar.tsx
 import React from "react";
+import { useEffect } from "react";
+
+type EstadoMayorKey = "10" | "20" | "30" | "40" | "50";
+type EstadoMenor = { value: string; label: string };
+
+
+// 🔹 Mapping between Estado Mayor and its possible Estado Menor options
+const estadosMenores: Record<EstadoMayorKey, EstadoMenor[]> = {
+    "10": [
+        { value: "102", label: "102 - En Cotización" },
+        { value: "103", label: "103 - En Diseño" },
+        { value: "104", label: "104 - En Fábrica (xlng)" },
+        { value: "105", label: "105 - En Acopio Reserva Proyecto" },
+        { value: "106", label: "106 - En Montaje" },
+        { value: "107", label: "107 - P.E.S." },
+        { value: "108", label: "108 - Declarado C.E.N" },
+    ],
+    "20": [
+        { value: "201", label: "201 - Activo Heredado" },
+        { value: "202", label: "202 - Normal" },
+        { value: "203", label: "203 - Monitoreo" },
+        { value: "204", label: "204 - Reserva en Frío" },
+        { value: "205", label: "205 - Equipo Nuevo de Reemplazo" },
+        { value: "206", label: "206 - Nueva Incorporación" },
+        { value: "207", label: "207 - Rotación de Equipo" },
+        { value: "208", label: "208 - Monitoreo" },
+        { value: "209", label: "209 - Monitoreo" },
+    ],
+    "30": [
+        { value: "301", label: "301 - En Falla" },
+        { value: "302", label: "302 - En Fábrica (xMant)" },
+        { value: "303", label: "303 - En Acopio Subestación (Pool)" },
+        { value: "304", label: "304 - Sin Repuestos" },
+    ],
+    "40": [
+        { value: "401", label: "401 - Por Obsolecencia Tecnológica" },
+        { value: "402", label: "402 - Por Riesgo Ambiental" },
+        { value: "403", label: "402 - Chatarra" },
+        { value: "404", label: "404 - Reutilización de Componente" },
+        { value: "405", label: "405 - Dado de Baja Contable" }
+    ],
+    "50": [
+        { value: "501", label: "501 - Tag Corregido" },
+        { value: "502", label: "502 - Tag Eliminado por Equipos Fin de Vida Útil" },
+        { value: "503", label: "503 - Tag Eliminado por Error de Creación" },
+        { value: "504", label: "504 - Tag Eliminado por Equipo Repotenciado" },
+    ],
+};
+
+
 
 interface AssetSearchBarProps {
     searchValue: string;
@@ -10,6 +60,10 @@ interface AssetSearchBarProps {
     setShowAdvanced: (value: boolean) => void;
     filtroEstado: string;
     setFiltroEstado: (value: string) => void;
+    filtroEstadoMayor: string;
+    setFiltroEstadoMayor: (value: string) => void;
+    filtroEstadoMenor: string;
+    setFiltroEstadoMenor: (value: string) => void;
     filtroSubestacion: string;
     setFiltroSubestacion: (value: string) => void;
     filtroFechaDesde: string;
@@ -37,17 +91,46 @@ const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
     setShowAdvanced,
     filtroEstado,
     setFiltroEstado,
+    filtroEstadoMayor,
+    setFiltroEstadoMayor,
+    filtroEstadoMenor,
+    setFiltroEstadoMenor,
     filtroSubestacion,
     setFiltroSubestacion,
     filtroFechaDesde,
     setFiltroFechaDesde,
     filtroFechaHasta,
     setFiltroFechaHasta,
+    filtroMarca,
+    setFiltroMarca,
+    filtroCen,
+    setFiltroCen,
+    filtroNema,
+    setFiltroNema,
     handleSearch,
     handleClearFilters,
     handleKeyPress,
     handleExportToExcel
 }) => {
+
+    useEffect(() => {
+        if (filtroEstadoMenor) {
+            // If there's a specific menor selected → it takes priority
+            setFiltroEstado(filtroEstadoMenor);
+        } else if (filtroEstadoMayor) {
+            // Else, just use the mayor
+            setFiltroEstado(filtroEstadoMayor);
+        } else {
+            // None selected → clear
+            setFiltroEstado("");
+        }
+    }, [filtroEstadoMayor, filtroEstadoMenor, setFiltroEstado]);
+
+    // Helper to safely get sub-statuses
+    const menores: EstadoMenor[] = filtroEstadoMayor
+        ? estadosMenores[filtroEstadoMayor as EstadoMayorKey] ?? []
+        : [];
+
     return (
         <div className="bg-gray-100 rounded-2xl p-4 sm:p-6 lg:p-8 mb-8 border border-black">
             {/* Título */}
@@ -128,24 +211,83 @@ const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 px-2 sm:px-4">
-                        {/* Estado */}
+                        {/* Estado Mayor*/}
                         <div>
                             <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
-                                Filtrar por Estado:
+                                Filtrar por Estado Mayor:
                             </label>
                             <select
-                                value={filtroEstado}
-                                onChange={(e) => setFiltroEstado(e.target.value)}
+                                value={filtroEstadoMayor}
+                                onChange={(e) => {
+                                    setFiltroEstadoMayor(e.target.value);
+                                    setFiltroEstadoMenor(""); // reset sub-status
+                                }}
                                 className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                             >
                                 <option value="">Todos los estados</option>
-                                <option value="10">Estado 100</option>
-                                <option value="20">Estado 200</option>
-                                <option value="30">Estado 300</option>
-                                <option value="40">Estado 400</option>
-                                <option value="50">Estado 500</option>
+                                <option value="10">100 - En Proyecto</option>
+                                <option value="20">200 - En Servicio</option>
+                                <option value="30">300 - Fuera de Servicio</option>
+                                <option value="40">400 - Fin Vida Útil</option>
+                                <option value="50">500 - Tag Modificado</option>
                             </select>
                         </div>
+                        {/* Estado Menor */}
+                        <div>
+                            <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
+                                Filtrar por Estado Menor:
+                            </label>
+                            <select
+                                value={filtroEstadoMenor}
+                                onChange={(e) => setFiltroEstadoMenor(e.target.value)}
+                                disabled={!filtroEstadoMayor}
+                                className={`w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none ${filtroEstadoMayor
+                                    ? "border-gray-300 focus:ring-2 focus:ring-[#8B322C]"
+                                    : "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
+                                    }`}
+                            >
+                                <option value="">
+                                    {filtroEstadoMayor
+                                        ? "Todos los estados menores"
+                                        : "Selecciona un estado mayor primero"}
+                                </option>
+
+                                {/* 🔹 Now menores is always an array, so map() is safe */}
+                                {menores.map((estado: EstadoMenor) => (
+                                    <option key={estado.value} value={estado.value}>
+                                        {estado.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        {/* Marca/Brand */}
+                        <div>
+                            <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
+                                Filtrar por Marca:
+                            </label>
+                            <input
+                                type="text"
+                                value={filtroMarca}
+                                onChange={(e) => setFiltroMarca(e.target.value)}
+                                placeholder="Nombre Marca..."
+                                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                            />
+                        </div>
+
+                        {/* CEN */}
+                        <div>
+                            <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
+                                Filtrar por CEN:
+                            </label>
+                            <input
+                                type="text"
+                                value={filtroCen}
+                                onChange={(e) => setFiltroCen(e.target.value)}
+                                placeholder="Codigo CEN..."
+                                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                            />
+                        </div>
+
 
                         {/* Subestación */}
                         <div>
@@ -160,6 +302,32 @@ const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
                                 className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                             />
                         </div>
+                        {/* NEMA - Solo se puede escribir en este si se escoge alguna subestación*/}
+                        <div>
+                            <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
+                                {filtroSubestacion
+                                    ? "Filtrar por NEMA:"
+                                    : "Filtrar por NEMA (selecciona una subestación primero):"}
+                            </label>
+
+                            <input
+                                type="text"
+                                value={filtroNema}
+                                onChange={(e) => setFiltroNema(e.target.value)}
+                                placeholder={
+                                    filtroSubestacion
+                                        ? "Código NEMA..."
+                                        : "Deshabilitado hasta seleccionar subestación"
+                                }
+                                disabled={!filtroSubestacion}
+                                className={`w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none
+                                ${filtroSubestacion
+                                        ? "border-gray-300 focus:ring-2 focus:ring-[#8B322C]"
+                                        : "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
+                                    }`}
+                            />
+                        </div>
+
 
                         {/* Fecha desde */}
                         <div>
