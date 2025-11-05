@@ -56,6 +56,7 @@ export interface EquipmentData {
     anoFabricacion: number;
     bil: string;
     tipo: string;
+    administrador: string;
     jsonData: Record<string, string> | string;
 }
 
@@ -225,6 +226,7 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
                     longitud: items.longitud,//Arreglar este
                     frecuencia: items.frecuencia?.toString(),
                     peso: items.tag_peso?.toString(),
+                    administrador: items.administrador?.toString() || "N/A",
                     jsonData: items.json_datos // Agregar campos restantes, y arreglar datos adicionales 
                     // Agregar campos restantes, y arreglar datos adicionales
                 };
@@ -365,7 +367,10 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
                                     <label className="block text-sm font-medium text-gray-500">Latitud</label>
                                     <p className="mt-1 text-sm text-gray-900">{equipmentData.latitud}</p>
                                 </div>
-
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-500">Observaciones</label>
+                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.observaciones}</p>
+                                </div>
                             </div>
                             <div className="space-y-4">
                                 <div>
@@ -396,10 +401,10 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
                                     <label className="block text-sm font-medium text-gray-500">Longitud</label>
                                     <p className="mt-1 text-sm text-gray-900">{equipmentData.longitud}</p>
                                 </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-500">Observaciones</label>
-                                <p className="mt-1 text-sm text-gray-900">{equipmentData.observaciones}</p>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-500">Administrador</label>
+                                    <p className="mt-1 text-sm text-gray-900">{equipmentData.administrador}</p>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -570,7 +575,7 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
             <div className="flex items-center mb-8 mt-6 gap-8">
                 <div className="flex-grow border-t border-gray-600"></div>
                 <div className="bg-white px-4 rounded-2xl border-gray-800">
-                    <span className="text-lg font-semibold text-black">Registros Historicos</span>
+                    <span className="text-lg font-semibold text-black">Registros Historicos de Eventos</span>
                 </div>
                 <div className="flex-grow border-t border-gray-600"></div>
             </div>

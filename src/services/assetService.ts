@@ -40,6 +40,7 @@ export interface Asset extends DataItem {
   empresa: string;
   nombre_subestacion: string;
   modificado_en: string;
+  administrador: string;
   nema: string;
   latitud: number;
   longitud: number;

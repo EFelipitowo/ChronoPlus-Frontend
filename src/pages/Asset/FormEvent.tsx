@@ -20,7 +20,8 @@ interface AssetData {
     estadoMenor: string;
     empresa: string;
     subestacion: string;
-    encargado: string;
+    encargadoEvento: string;
+    encargadoActivo: string;
     observaciones: string;
     latitud: number | string | null;
     longitud: number | string | null;
@@ -130,13 +131,17 @@ const FormAsset: React.FC = () => {
     const [filteredEncargados, setFilteredEncargados] = useState<Encargado[]>([]);
     const [selectedEncargadoId, setSelectedEncargadoId] = useState<string>("");
 
+    const [encargadoEvento, setEncargadoEvento] = useState<string>("");
+    const [encargadoActivo, setEncargadoActivo] = useState<string>("");
+
 
     const [formData, setFormData] = useState({
         estadoMayor: "",
         estadoMenor: "",
         empresa: "",
         subestacion: "",
-        encargado: "",
+        encargadoEvento: "",
+        encargadoActivo: "",
         observaciones: "",
         latitud: null as number | null,
         longitud: null as number | null,
@@ -208,12 +213,22 @@ const FormAsset: React.FC = () => {
     const selectEncargado = (encargado: Encargado) => {
         setFormData(prev => ({
             ...prev,
-            encargado: encargado.nombre_usuario
+            encargadoActivo: encargado.nombre_usuario
         }));
         //setSelectedEncargadoId(encargado.user_id.toString());
         setSelectedEncargadoId(encargado.nombre_usuario);
         setShowEncargadoSuggestions(false);
     };
+
+    const handleSelectEncargado = (encargado: { nombre_usuario: string }) => {
+        setFormData((prev) => ({
+            ...prev,
+            encargadoActivo: encargado.nombre_usuario,
+        }));
+        setSelectedEncargadoId(encargado.nombre_usuario);
+        setShowEncargadoSuggestions(false);
+    };
+
 
     // Token check y redirección si no está autenticado
     useEffect(() => {
@@ -225,7 +240,7 @@ const FormAsset: React.FC = () => {
             if (decoded.email) {
                 setFormData((prev) => ({
                     ...prev,
-                    encargado: decoded.email.split('@')[0] // encargado inicial
+                    encargadoEvento: decoded.email.split('@')[0] // encargado inicial
                 }));
             }
         } catch (err) {
@@ -276,7 +291,7 @@ const FormAsset: React.FC = () => {
                     estadoMenor: matchedEstadoMenor,
                     empresa: String(items.empresa ?? prev.empresa),
                     subestacion: String(items.nombre_subestacion ?? prev.subestacion),
-                    encargado: String(items.encargado ?? prev.encargado),
+                    encargadoActivo: String(items.administrador ?? prev.administrador),
                     latitud: items.latitud ? parseFloat(items.latitud) : null,
                     longitud: items.longitud ? parseFloat(items.longitud) : null,
                     nema: String(items.codigo_nema ?? prev.nema)
@@ -305,7 +320,7 @@ const FormAsset: React.FC = () => {
         }));
 
         // Si es el campo encargado, filtrar sugerencias
-        if (name === "encargado") {
+        if (name === "encargadoActivo") {
             filterEncargados(value);
         }
     };
@@ -327,7 +342,7 @@ const FormAsset: React.FC = () => {
                 status_bot: formData.estadoMenor,
                 company: formData.empresa,
                 substation: formData.subestacion,
-                inCharge: selectedEncargadoId,
+                inChargeAsset: selectedEncargadoId || formData.encargadoActivo, //administrador
                 observation: formData.observaciones,
                 longitude: formData.longitud ? parseFloat(formData.longitud) : null,
                 latitude: formData.latitud ? parseFloat(formData.latitud) : null,
@@ -555,36 +570,49 @@ const FormAsset: React.FC = () => {
                                 placeholder="Ej: NEMA-12345"
                             />
                         </div>
-
-                        {/* Encargado con autocompletado */}
+                        {/* Encargado Activo con autocompletado */}
                         <div className="mb-6 relative">
                             <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Encargado
+                                Administrador Activo
                             </label>
                             <input
                                 type="text"
-                                name="encargado"
-                                value={formData.encargado}
+                                name="encargadoActivo"
+                                value={formData.encargadoActivo}
                                 onChange={handleInputChange}
-                                placeholder="Escriba el nombre del encargado..."
+                                placeholder="Escriba el nombre del administrador..."
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                                 required
                             />
 
                             {/* Sugerencias de encargados */}
                             {showEncargadoSuggestions && (
-                                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                    {filteredEncargados.map(encargado => (
-                                        <div
-                                            key={encargado.nombre_usuario}
-                                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                            onClick={() => selectEncargado(encargado)}
+                                <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-40 overflow-y-auto shadow">
+                                    {filteredEncargados.map((encargado) => (
+                                        <li
+                                            key={encargado.user_id}
+                                            onClick={() => handleSelectEncargado(encargado)}
+                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                         >
                                             {encargado.nombre_usuario}
-                                        </div>
+                                        </li>
                                     ))}
-                                </div>
+                                </ul>
                             )}
+                        </div>
+
+                        {/* Encargado Evento (read-only) */}
+                        <div className="mb-6">
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Encargado Evento
+                            </label>
+                            <input
+                                type="text"
+                                name="encargadoEvento"
+                                value={formData.encargadoEvento}
+                                readOnly
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+                            />
                         </div>
 
                         {/* Observaciones */}
@@ -604,21 +632,21 @@ const FormAsset: React.FC = () => {
 
                         {/* Botón para abrir modal de subida */}
                         <div className="flex justify-center mb-6">
-                        <button
-                            type="button"
-                            onClick={() => setShowUploadModal(true)}
-                            className="px-6 py-2 black-button rounded-lg text-white text-sm font-semibold"
-                        >
-                            + Subir Archivo
-                        </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowUploadModal(true)}
+                                className="px-6 py-2 black-button rounded-lg text-white text-sm font-semibold"
+                            >
+                                + Subir Archivo
+                            </button>
                         </div>
 
                         {/* Modal para subir archivos */}
                         <UploadFilePopup
-                        isOpen={showUploadModal}
-                        onClose={() => setShowUploadModal(false)}
-                        onUploadSuccess={(newFiles) => setFiles(newFiles)}
-                        assetTag={id ?? ""}
+                            isOpen={showUploadModal}
+                            onClose={() => setShowUploadModal(false)}
+                            onUploadSuccess={(newFiles) => setFiles(newFiles)}
+                            assetTag={id ?? ""}
                         />
 
                         {/* Botones */}
@@ -640,8 +668,8 @@ const FormAsset: React.FC = () => {
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

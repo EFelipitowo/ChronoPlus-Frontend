@@ -7,17 +7,20 @@ import AssetPage from './pages/Asset/AssetPage';
 import FormEvent from "./pages/Asset/FormEvent";
 import MapPage from "./pages/Main/MapPage";
 import GraphPage from "./pages/Main/GraphPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<Login />} />
-        <Route path="/graph" element={<GraphPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/map" element={<MapPage />} />
-        <Route path="/asset/:id" element={<AssetPage />} />
-        <Route path="/asset/:id/register-event" element={<FormEvent />} />
+        {/* Protected Routes */}
+        <Route path="/graph" element={<ProtectedRoute><GraphPage /></ProtectedRoute>} />
+        <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+        <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
+        <Route path="/asset/:id" element={<ProtectedRoute><AssetPage /></ProtectedRoute>} />
+        <Route path="/asset/:id/register-event" element={<ProtectedRoute><FormEvent /></ProtectedRoute>} />
       </Routes>
     </Router>
   )
