@@ -34,9 +34,12 @@ const HomePage: React.FC = () => {
   const [filtroCen, setFiltroCen] = useState("");
   const [filtroFechaDesde, setFiltroFechaDesde] = useState("");
   const [filtroFechaHasta, setFiltroFechaHasta] = useState("");
+  const [filtroFamilia, setFiltroFamilia] = useState("");
+  const [filtroAdministrador, setFiltroAdministrador] = useState("");
+
 
   const [page, setPage] = useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,7 +56,10 @@ const HomePage: React.FC = () => {
     brand: "",
     from: "",
     to: "",
-    cen: ""
+    cen: "",
+    nema: "",
+    family: "",
+    administrator: ""
   });
 
   // Utility, consider moving to utility file (its also used in Asset.tsx)
@@ -80,6 +86,7 @@ const HomePage: React.FC = () => {
     { key: 'codigo_cen', label: 'CEN', sortable: true },
     { key: 'empresa', label: 'Empresa', sortable: true },
     { key: 'nombre_subestacion', label: 'Subestación', sortable: true },
+    { key: 'administrador', label: 'Administrador', sortable: true },
     { key: 'modificado_en', label: 'Ultima Actualización', sortable: true, customRender: (value) => formatTimestamp(value) }
   ];
 
@@ -98,7 +105,10 @@ const HomePage: React.FC = () => {
           brand,
           from,
           to,
-          cen
+          cen,
+          nema,
+          family,
+          administrator
         } = activeFiltersRef.current;
 
         const filterParams: Record<string, string | undefined> = {
@@ -107,7 +117,10 @@ const HomePage: React.FC = () => {
           brand,
           from,
           to,
-          cen
+          cen,
+          nema,
+          family,
+          administrator
         };
 
         if (currentSearchValue) {
@@ -117,7 +130,7 @@ const HomePage: React.FC = () => {
         const { items, metadata } = await getLatestAssets(
           pageSize,
           page,
-          ["tag", "brand", "status", "company", "substation_name", "nema", "cen", "d.modificado_en"],
+          ["tag", "brand", "status", "company", "substation_name", "nema", "cen", "d.modificado_en", "family", "administrator"],
           filterParams
         );
 
@@ -133,7 +146,7 @@ const HomePage: React.FC = () => {
     }
 
     fetchData();
-  }, [page]);
+  }, [page, pageSize]);
 
 
   // Función para manejar el ordenamiento
@@ -164,7 +177,9 @@ const HomePage: React.FC = () => {
         from: filtroFechaDesde,
         to: filtroFechaHasta,
         nema: filtroNema,
-        cen: filtroCen
+        cen: filtroCen,
+        family: filtroFamilia,
+        administrator: filtroAdministrador
       };
 
       if (searchValue) {
@@ -206,7 +221,10 @@ const HomePage: React.FC = () => {
         brand: filtroMarca,
         from: filtroFechaDesde,
         to: filtroFechaHasta,
-        cen: filtroCen
+        cen: filtroCen,
+        nema: filtroNema,
+        family: filtroFamilia,
+        administrator: filtroAdministrador
       };
 
       const filterParams: Record<string, string | undefined> = {
@@ -215,7 +233,10 @@ const HomePage: React.FC = () => {
         brand: filtroMarca,
         from: filtroFechaDesde,
         to: filtroFechaHasta,
-        cen: filtroCen
+        cen: filtroCen,
+        nema: filtroNema,
+        family: filtroFamilia,
+        administrator: filtroAdministrador
       };
 
       if (searchValue) {
@@ -223,7 +244,7 @@ const HomePage: React.FC = () => {
       }
 
       const { items, metadata } = await getLatestAssets(pageSize, 1,
-        ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "nema", "cen"],
+        ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "nema", "cen", "family", "administrator"],
         filterParams
       );
 
@@ -251,6 +272,8 @@ const HomePage: React.FC = () => {
     setFiltroSubestacion("");
     setFiltroFechaDesde("");
     setFiltroFechaHasta("");
+    setFiltroAdministrador("");
+    setFiltroFamilia("");
     setPage(1); // reset page
 
     activeFiltersRef.current = {
@@ -263,7 +286,10 @@ const HomePage: React.FC = () => {
       brand: "",
       from: "",
       to: "",
-      cen: ""
+      cen: "",
+      nema: "",
+      family: "",
+      administrator: ""
     };
 
     try {
@@ -320,6 +346,10 @@ const HomePage: React.FC = () => {
             setFiltroFechaDesde={setFiltroFechaDesde}
             filtroFechaHasta={filtroFechaHasta}
             setFiltroFechaHasta={setFiltroFechaHasta}
+            filtroFamilia={filtroFamilia}
+            setFiltroFamilia={setFiltroFamilia}
+            filtroAdministrador={filtroAdministrador}
+            setFiltroAdministrador={setFiltroAdministrador}
             handleSearch={handleSearch}
             handleClearFilters={handleClearFilters}
             handleKeyPress={handleKeyPress}
@@ -374,6 +404,10 @@ const HomePage: React.FC = () => {
             setFiltroFechaDesde={setFiltroFechaDesde}
             filtroFechaHasta={filtroFechaHasta}
             setFiltroFechaHasta={setFiltroFechaHasta}
+            filtroAdministrador={filtroAdministrador}
+            setFiltroAdministrador={setFiltroAdministrador}
+            filtroFamilia={filtroFamilia}
+            setFiltroFamilia={setFiltroFamilia}
             handleSearch={handleSearch}
             handleClearFilters={handleClearFilters}
             handleKeyPress={handleKeyPress}
@@ -427,6 +461,10 @@ const HomePage: React.FC = () => {
             setFiltroFechaDesde={setFiltroFechaDesde}
             filtroFechaHasta={filtroFechaHasta}
             setFiltroFechaHasta={setFiltroFechaHasta}
+            filtroAdministrador={filtroAdministrador}
+            setFiltroAdministrador={setFiltroAdministrador}
+            filtroFamilia={filtroFamilia}
+            setFiltroFamilia={setFiltroFamilia}
             handleSearch={handleSearch}
             handleClearFilters={handleClearFilters}
             handleKeyPress={handleKeyPress}
@@ -481,6 +519,10 @@ const HomePage: React.FC = () => {
           setFiltroFechaDesde={setFiltroFechaDesde}
           filtroFechaHasta={filtroFechaHasta}
           setFiltroFechaHasta={setFiltroFechaHasta}
+          filtroFamilia={filtroFamilia}
+          setFiltroFamilia={setFiltroFamilia}
+          filtroAdministrador={filtroAdministrador}
+          setFiltroAdministrador={setFiltroAdministrador}
           handleSearch={handleSearch}
           handleClearFilters={handleClearFilters}
           handleKeyPress={handleKeyPress}
@@ -519,6 +561,31 @@ const HomePage: React.FC = () => {
             ) : (
               <p className="text-sm text-white">No se encontraron activos</p>
             )}
+
+            {/* Page size selector */}
+            <div className="flex justify-center items-center gap-2 mt-4">
+              <label htmlFor="pageSize" className="text-sm text-white">
+                Mostrar:
+              </label>
+              <select
+                id="pageSize"
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPage(1); // reset to first page
+                }}
+                className="px-2 py-1 border border-gray-400 rounded-lg bg-white text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+              >
+                {[20, 40, 60, 80, 100].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+              <span className="text-sm text-white">activos por página</span>
+            </div>
+
+
 
             {/* Pagination buttons */}
             <div className="flex justify-center gap-4 mt-2">

@@ -76,6 +76,10 @@ interface AssetSearchBarProps {
     setFiltroNema: (value: string) => void;
     filtroCen: string;
     setFiltroCen: (value: string) => void;
+    filtroFamilia: string;
+    setFiltroFamilia: (value: string) => void;
+    filtroAdministrador: string;
+    setFiltroAdministrador: (value: string) => void;
     handleSearch: () => void;
     handleClearFilters: () => void;
     handleKeyPress: (e: React.KeyboardEvent) => void;
@@ -107,6 +111,10 @@ const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
     setFiltroCen,
     filtroNema,
     setFiltroNema,
+    filtroFamilia,
+    setFiltroFamilia,
+    filtroAdministrador,
+    setFiltroAdministrador,
     handleSearch,
     handleClearFilters,
     handleKeyPress,
@@ -274,16 +282,16 @@ const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
                             />
                         </div>
 
-                        {/* CEN */}
+                        {/* Familia */}
                         <div>
                             <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
-                                Filtrar por CEN:
+                                Filtrar por Familia:
                             </label>
                             <input
                                 type="text"
-                                value={filtroCen}
-                                onChange={(e) => setFiltroCen(e.target.value)}
-                                placeholder="Codigo CEN..."
+                                value={filtroFamilia}
+                                onChange={(e) => setFiltroFamilia(e.target.value)}
+                                placeholder="Código Familia..."
                                 className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                             />
                         </div>
@@ -327,8 +335,32 @@ const AssetSearchBar: React.FC<AssetSearchBarProps> = ({
                                     }`}
                             />
                         </div>
-
-
+                        {/* CEN */}
+                        <div>
+                            <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
+                                Filtrar por Administrador:
+                            </label>
+                            <input
+                                type="text"
+                                value={filtroAdministrador}
+                                onChange={(e) => setFiltroAdministrador(e.target.value)}
+                                placeholder="Nombre Administrador..."
+                                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                            />
+                        </div>
+                        {/* CEN */}
+                        <div>
+                            <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
+                                Filtrar por CEN:
+                            </label>
+                            <input
+                                type="text"
+                                value={filtroCen}
+                                onChange={(e) => setFiltroCen(e.target.value)}
+                                placeholder="Código CEN..."
+                                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
+                            />
+                        </div>
                         {/* Fecha desde */}
                         <div>
                             <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
