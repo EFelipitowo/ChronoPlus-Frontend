@@ -1,25 +1,53 @@
 // src/components/modals/FileUploadModal.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { uploadAssetFile, getAssetFiles } from '../../services/assetService';
 import type { AssetFile } from '../../services/assetService';
+import ReactDOM from "react-dom";
 
 interface FileUploadModalProps {
     isOpen: boolean;
     onClose: () => void;
     onUploadSuccess: (files: AssetFile[]) => void;
     assetTag: string;
+    onUpdateSuccess?: () => void;
 }
 
 const UploadFilePopup: React.FC<FileUploadModalProps> = ({
     isOpen,
     onClose,
     onUploadSuccess,
-    assetTag
+    assetTag,
+    onUpdateSuccess = () => {}
 }) => {
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [uploadDescription, setUploadDescription] = useState("");
     const [uploadCategory, setUploadCategory] = useState("");
     const [uploading, setUploading] = useState(false);
+
+    // Crear portal container una sola vez
+    useEffect(() => {
+        let portal = document.getElementById("upload-file-portal");
+        if (!portal) {
+            portal = document.createElement("div");
+            portal.id = "upload-file-portal";
+            document.body.appendChild(portal);
+        }
+        return () => {
+            // No removemos el nodo para reutilizarlo; si quieres eliminarlo, hazlo aquí
+        };
+    }, []);
+
+    // Bloquear scroll cuando el modal está abierto
+    useEffect(() => {
+        if (isOpen) {
+            const prev = document.body.style.overflow;
+            document.body.style.overflow = "hidden";
+            return () => {
+                document.body.style.overflow = prev;
+            };
+        }
+        return;
+    }, [isOpen]);
 
     const handleFileUpload = async () => {
         if (!uploadFile) {
@@ -28,24 +56,16 @@ const UploadFilePopup: React.FC<FileUploadModalProps> = ({
         }
         try {
             setUploading(true);
-            await uploadAssetFile(
-                assetTag,
-                uploadFile,
-                uploadDescription,
-                uploadCategory
-            );
-            // Recargar archivos y notificar al padre
+            await uploadAssetFile(assetTag, uploadFile, uploadDescription, uploadCategory);
             const { items } = await getAssetFiles(assetTag);
             onUploadSuccess(items || []);
-
             alert("Archivo subido exitosamente");
-            onClose(); // cerrar modal
+            onClose();
         } catch (err) {
             console.error("Error al subir archivo:", err);
             alert("Error al subir el archivo. Por favor, inténtelo nuevamente.");
         } finally {
             setUploading(false);
-            // Resetear campos (opcional, ya que se cierra)
             setUploadFile(null);
             setUploadDescription("");
             setUploadCategory("");
@@ -54,7 +74,8 @@ const UploadFilePopup: React.FC<FileUploadModalProps> = ({
 
     if (!isOpen) return null;
 
-    return (
+    const portal = document.getElementById("upload-file-portal")!;
+    return ReactDOM.createPortal(
         <div
             className="fixed inset-0 flex items-center justify-center z-50"
             style={{ backgroundColor: "rgba(0,0,0,0.3)" }}
@@ -144,14 +165,15 @@ const UploadFilePopup: React.FC<FileUploadModalProps> = ({
                 {/* Animación inline */}
                 <style>
                     {`
-            @keyframes fadeInScale {
-              0% { opacity: 0; transform: scale(0.95) translateY(10px); }
-              100% { opacity: 1; transform: scale(1) translateY(0); }
-            }
-          `}
+                        @keyframes fadeInScale {
+                        0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+                        100% { opacity: 1; transform: scale(1) translateY(0); }
+                        }
+                    `}
                 </style>
             </div>
-        </div>
+        </div>,
+        portal
     );
 };
 

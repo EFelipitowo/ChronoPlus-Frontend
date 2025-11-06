@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import TopBar_l from "../../components/layout/TopBar_logged";
-import { getAssetData, getAssetFiles } from "../../services/assetService";
+import { getAssetData } from "../../services/assetService";
 import { jwtDecode } from "jwt-decode";
 import UploadFilePopup from "../../components/layout/UploadFilePopup";
 import type { AssetFile } from "../../services/assetService";
@@ -534,7 +534,7 @@ const FormAsset: React.FC = () => {
                                 <input
                                     type="text"
                                     name="latitud"
-                                    value={formData.latitud}
+                                    value={Number(formData.latitud)}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                                     placeholder="Ej: -33.456789"
@@ -549,7 +549,7 @@ const FormAsset: React.FC = () => {
                                 <input
                                     type="text"
                                     name="longitud"
-                                    value={formData.longitud}
+                                    value={Number(formData.longitud)}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B322C]"
                                     placeholder="Ej: -70.648273"

@@ -112,7 +112,7 @@ const GraphPage: React.FC = () => {
                     "tag_brand",
                     "company",
                     "substation_name",
-                    "tag_type_code",
+                    "family",
                     "status",
                     "level2_equipment",
                     "level3_functioning"

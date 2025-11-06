@@ -1,6 +1,18 @@
 import React, { useState, useMemo } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
+import ReactDOM from "react-dom";
+
+const DraggablePortal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const portal = document.getElementById("dnd-portal") || (() => {
+        const el = document.createElement("div");
+        el.id = "dnd-portal";
+        document.body.appendChild(el);
+        return el;
+    })();
+
+    return ReactDOM.createPortal(children, portal);
+};
 
 
 interface Field {
@@ -104,21 +116,28 @@ const HierarchyEditor: React.FC<HierarchyEditorProps> = ({
                                     >
                                         {activeFields.map((key, index) => (
                                             <Draggable key={key} draggableId={key} index={index}>
-                                                {(provided) => (
-                                                    <li
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        className="bg-white border border-blue-300 shadow-sm rounded-md px-3 py-2 flex justify-between items-center cursor-move"
-                                                    >
-                                                        <span className="text-gray-800 text-sm font-medium">
-                                                            {index + 1}. {getFieldLabel(key)}
-                                                        </span>
-                                                        <span className="text-xs text-gray-400">
-                                                            arrastra ↕
-                                                        </span>
-                                                    </li>
-                                                )}
+                                                {(provided, snapshot) => {
+                                                    const item = (
+                                                        <li
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            className={`bg-white border rounded-md px-3 py-2 flex justify-between items-center cursor-move transition-transform duration-150 ${snapshot.isDragging
+                                                                ? "scale-[1.03] shadow-lg border-blue-400 z-50"
+                                                                : "shadow-sm border-blue-300"
+                                                                }`}
+                                                            style={provided.draggableProps.style}
+                                                        >
+                                                            <span className="text-gray-800 text-sm font-medium">
+                                                                {index + 1}. {getFieldLabel(key)}
+                                                            </span>
+                                                            <span className="text-xs text-gray-400">arrastra ↕</span>
+                                                        </li>
+                                                    );
+
+                                                    // mientras se arrastra → lo renderiza en el portal (fuera del contenedor con overflow)
+                                                    return snapshot.isDragging ? <DraggablePortal>{item}</DraggablePortal> : item;
+                                                }}
                                             </Draggable>
                                         ))}
                                         {provided.placeholder}
@@ -146,21 +165,25 @@ const HierarchyEditor: React.FC<HierarchyEditorProps> = ({
                                     >
                                         {inactiveFields.map((key, index) => (
                                             <Draggable key={key} draggableId={key} index={index}>
-                                                {(provided) => (
-                                                    <li
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        className="bg-white border border-gray-300 rounded-md px-3 py-2 flex justify-between items-center cursor-move"
-                                                    >
-                                                        <span className="text-gray-800 text-sm">
-                                                            {getFieldLabel(key)}
-                                                        </span>
-                                                        <span className="text-xs text-gray-400">
-                                                            arrastra ↕
-                                                        </span>
-                                                    </li>
-                                                )}
+                                                {(provided, snapshot) => {
+                                                    const item = (
+                                                        <li
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            className={`bg-white border rounded-md px-3 py-2 flex justify-between items-center cursor-move transition-transform duration-150 ${snapshot.isDragging
+                                                                    ? "scale-[1.03] shadow-lg border-gray-400 z-50"
+                                                                    : "shadow-sm border-gray-300"
+                                                                }`}
+                                                            style={provided.draggableProps.style}
+                                                        >
+                                                            <span className="text-gray-800 text-sm">{getFieldLabel(key)}</span>
+                                                            <span className="text-xs text-gray-400">arrastra ↕</span>
+                                                        </li>
+                                                    );
+
+                                                    return snapshot.isDragging ? <DraggablePortal>{item}</DraggablePortal> : item;
+                                                }}
                                             </Draggable>
                                         ))}
                                         {provided.placeholder}

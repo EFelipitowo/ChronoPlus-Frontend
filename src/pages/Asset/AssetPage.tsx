@@ -1,3 +1,4 @@
+//src/pages/Asset/AssetPage.tsx
 import React from 'react';
 import "../../pages/styles/style.css"
 import TopBar_l from '../../components/layout/TopBar_logged';

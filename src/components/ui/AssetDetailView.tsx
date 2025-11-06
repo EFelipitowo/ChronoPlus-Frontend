@@ -1,11 +1,12 @@
-// src/components/asset/AssetDetailView.tsx
+//src/components/ui/AssetDetailView.tsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Table from '../../components/ui/Table';
 import type { DataItem, ColumnConfig } from "../../components/ui/Table";
 import { getAssetData, getAssetEvents, getAssetFiles, downloadAssetFile, downloadAssetExcel } from '../../services/assetService';
 import type { ApiSingleResponse, Asset, AssetEvent, AssetFile } from '../../services/assetService';
 import UploadFilePopup from '../../components/layout/UploadFilePopup';
+import EventFormPopup from '../layout/EventFormPopup';
 
 
 const estadoMayorMap: Record<string, string> = {
@@ -69,6 +70,10 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
     const { id: idFromParams } = useParams<{ id: string }>();
     const id = tag || idFromParams;
 
+    const [filerefresh, setFileRefresh] = useState(0);
+    const [refresh, setRefresh] = useState(0);
+    const [showEventPopup, setShowEventPopup] = useState(false);
+
     const [equipmentData, setEquipmentData] = useState<EquipmentData | null>(null);
     //const [metadata, setMetaData] = useState<ApiSingleResponse<Asset>["metadata"] | null>(null);
     const [events, setEvents] = useState<AssetEvent[]>([]);
@@ -81,8 +86,6 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-
-    const navigate = useNavigate();
 
     const [files, setFiles] = useState<AssetFile[]>([]);
 
@@ -100,7 +103,7 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
             }
         }
         fetchAssetFiles();
-    }, [id]);
+    }, [id, refresh, filerefresh]);
 
 
     const fileColumns: ColumnConfig<AssetFile>[] = [
@@ -242,8 +245,9 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
             fetchEquipmentData();
             fetchAssetEvents();
         }
-    }, [id]
+    }, [id,refresh]
     );
+
 
     useEffect(() => {
         setFilteredData(events);
@@ -517,6 +521,7 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
                                     }}
                                     sortField={sortField}
                                     sortDirection={sortDirection}
+                                    onUpdate={() => setFileRefresh((f) => f + 1)}
                                 />
                             )}
 
@@ -566,11 +571,17 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
                     Descargar Hoja de Vida
                 </button>
                 <button
-                    onClick={() => navigate(`/asset/${id}/register-event`)}
+                    onClick={() => setShowEventPopup(true)}
                     className="px-4 py-2 black-button text-white text-sm rounded-lg  transition"
                 >
                     + Registrar Evento
                 </button>
+                <EventFormPopup
+                    isOpen={showEventPopup}
+                    onClose={() => setShowEventPopup(false)}
+                    AssetId={id}
+                    onUpdateSuccess={() => setRefresh((r) => r + 1)}
+                />
             </div>
             <div className="flex items-center mb-8 mt-6 gap-8">
                 <div className="flex-grow border-t border-gray-600"></div>
