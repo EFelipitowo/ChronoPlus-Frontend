@@ -92,6 +92,8 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
     // Estados para el modal de subida
     const [showUploadModal, setShowUploadModal] = useState(false);
 
+    
+
     useEffect(() => {
         async function fetchAssetFiles() {
             if (!id) return;
@@ -287,7 +289,7 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
     };
 
     // Early returns for loading/error/null
-    if (loading) {
+    if (loading && refresh === 0) {
         return (
             <div className="bg-gray-100 border border-gray-300 rounded-2xl p-4 w-full max-w-sm mx-auto mt-20 shadow">
                 <p className=" text-center">Cargando activo...</p>
@@ -297,6 +299,10 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ tag }) => {
 
     if (error) return <p className="mt-20 text-center text-red-600">{error}</p>;
     if (!equipmentData) return <p className="mt-20 text-center">Activo no encontrado</p>;
+
+    if (!id) {
+        return <p className="text-center mt-20 text-red-600">ID del activo no disponible.</p>;
+    }
 
     return (
         <>

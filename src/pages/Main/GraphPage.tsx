@@ -23,7 +23,8 @@ const HIERARCHY_FIELDS = [
     { key: "empresa", label: "Empresa" },
     { key: "nombre_subestacion", label: "Subestación" },
     { key: "tag_tipo_cod", label: "Familia de equipo" },
-    { key: "tag_estado", label: "Estado" },
+    { key: "tag_estado", label: "Estado Menor" },
+    { key: "tag_estado_mayor", label: "Estado Mayor" },
     { key: "tag", label: "TAG (Equipo)" }
 ];
 
@@ -115,7 +116,8 @@ const GraphPage: React.FC = () => {
                     "family",
                     "status",
                     "level2_equipment",
-                    "level3_functioning"
+                    "level3_functioning",
+                    "status_top"
                 ]);
                 setAssets(items || []);
             } catch (err) {
@@ -241,7 +243,7 @@ const GraphPage: React.FC = () => {
                                 style={{ paddingLeft: `${(depth + 1) * 20 + 12}px` }}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    setSelectedAssetTag(asset.tag);
+                                    setSelectedAssetTag(asset.tag && String(asset.tag).trim() ? String(asset.tag) : null);
                                 }}
                             >
                                 <span className="truncate">{asset.tag}</span>

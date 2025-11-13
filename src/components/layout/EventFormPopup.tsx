@@ -385,13 +385,21 @@ const EventFormPopup: React.FC<EventFormPopupProps> = ({
             console.error("Error updating asset:", error);
             alert("Error al actualizar los datos");
         }
+
+        
         
     };
+
+    
 
     const handleCancel = () => {
 
     };
 
+    if (!AssetId || typeof AssetId !== 'string' || AssetId.trim() === '') {
+        console.error('❌ EventFormPopup recibió AssetId inválido:', AssetId);
+    return null;
+}
 
     if (!isOpen) return null;
 
