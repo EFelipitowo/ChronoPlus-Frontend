@@ -81,7 +81,8 @@ const HomePage: React.FC = () => {
   const tableColumns: ColumnConfig<Asset>[] = [
     { key: 'tag', label: 'TAG', sortable: true },
     { key: 'tag_marca', label: 'Marca', sortable: true },
-    { key: 'tag_estado', label: 'Estado', sortable: true },
+    {key: 'tag_estado_mayor', label: 'Estado Mayor', sortable: true },
+    { key: 'tag_estado', label: 'Estado Menor', sortable: true },
     { key: 'codigo_nema', label: 'NEMA', sortable: true },
     { key: 'codigo_cen', label: 'CEN', sortable: true },
     { key: 'empresa', label: 'Empresa', sortable: true },
@@ -130,7 +131,7 @@ const HomePage: React.FC = () => {
         const { items, metadata } = await getLatestAssets(
           pageSize,
           page,
-          ["tag", "brand", "status", "company", "substation_name", "nema", "cen", "d.modificado_en", "family", "administrator"],
+          ["tag", "brand", "status", "company", "substation_name", "nema", "cen", "d.modificado_en", "family", "administrator", "status_top"],
           filterParams
         );
 
@@ -244,7 +245,7 @@ const HomePage: React.FC = () => {
       }
 
       const { items, metadata } = await getLatestAssets(pageSize, 1,
-        ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "nema", "cen", "family", "administrator"],
+        ["tag", "brand", "status", "company", "substation_name", "d.modificado_en", "nema", "cen", "family", "administrator", "status_top"],
         filterParams
       );
 
