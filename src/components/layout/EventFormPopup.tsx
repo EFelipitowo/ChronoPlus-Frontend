@@ -11,14 +11,12 @@ interface TokenPayload {
     exp: number;
     iat: number;
 }
-
 interface EventFormPopupProps {
     isOpen: boolean;
     onClose: () => void;
     AssetId: string;
     onUpdateSuccess?: () => void; 
 }
-
 interface AssetData {
     id: string;
     tag: string;
@@ -33,13 +31,11 @@ interface AssetData {
     longitud: number | string | null;
     nema: string;
 }
-
 interface Empresa {
     //id: number;
     //nombre: string;
     empresa: string
-}
-
+};
 interface Subestacion {
     nombre_subestacion: string;
 }
